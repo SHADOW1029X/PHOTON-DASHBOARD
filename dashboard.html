@@ -10,298 +10,939 @@
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="no-referrer">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ══════════════════════════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════════════════════════ */
     :root {
-      --bg:        #030a0f;
-      --bg2:       #060e16;
-      --panel:     #0a1520;
-      --border:    #0d3a52;
-      --cyan:      #00e5ff;
-      --cyan-dim:  #007a99;
-      --green:     #00ff9d;
-      --green-dim: #006644;
-      --amber:     #ffb300;
-      --amber-dim: #7a5500;
-      --red:       #ff3b5c;
-      --red-dim:   #7a1a2a;
-      --violet:    #bf7fff;
-      --text:      #b0d4e8;
-      --text-dim:  #3d6478;
-      --glow-c: 0 0 8px #00e5ff66, 0 0 20px #00e5ff22;
-      --glow-g: 0 0 8px #00ff9d66, 0 0 20px #00ff9d22;
-      --glow-r: 0 0 8px #ff3b5c66, 0 0 20px #ff3b5c22;
-      --glow-v: 0 0 8px #bf7fff66, 0 0 20px #bf7fff22;
+      --bg:         #020810;
+      --bg2:        #040d18;
+      --panel:      #07111e;
+      --panel2:     #0a1828;
+      --border:     #0d3a52;
+      --border-hi:  #1a6a8a;
+      --cyan:       #00e5ff;
+      --cyan-dim:   #007a99;
+      --cyan-deep:  #003d4d;
+      --green:      #00ff9d;
+      --green-dim:  #006644;
+      --amber:      #ffb300;
+      --amber-dim:  #7a5500;
+      --red:        #ff3b5c;
+      --red-dim:    #7a1a2a;
+      --violet:     #bf7fff;
+      --violet-dim: #5a3a88;
+      --text:       #b0d4e8;
+      --text-dim:   #3d6478;
+      --text-mid:   #6a9ab8;
+      --glow-c:  0 0 8px #00e5ff77, 0 0 24px #00e5ff33;
+      --glow-g:  0 0 8px #00ff9d77, 0 0 24px #00ff9d33;
+      --glow-r:  0 0 8px #ff3b5c77, 0 0 24px #ff3b5c33;
+      --glow-v:  0 0 8px #bf7fff77, 0 0 24px #bf7fff33;
+      --glow-a:  0 0 8px #ffb30077, 0 0 24px #ffb30033;
     }
+
+    /* ── RESET & BASE ─────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scrollbar-width: thin; scrollbar-color: var(--cyan-dim) var(--bg2); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--cyan-dim) var(--bg2);
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg2); }
     ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 3px; }
-    body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden; }
-    body::before { content:''; position:fixed; inset:0; z-index:9999; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.012) 2px,rgba(0,229,255,.012) 4px); }
-    body::after  { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(rgba(0,229,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.035) 1px,transparent 1px); background-size:40px 40px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
 
-    .skip-link { position:absolute; left:-9999px; top:4px; background:var(--cyan); color:var(--bg); padding:6px 12px; font-family:'Orbitron',monospace; font-size:.7rem; border-radius:3px; z-index:99999; }
-    .skip-link:focus { left:10px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-    .layout { position:relative; z-index:1; max-width:1700px; margin:0 auto; padding:0 20px 60px; }
+    /* ── GLOBAL OVERLAYS ──────────────────────────────────────────── */
+    /* Scanlines */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,229,255,.007) 3px, rgba(0,229,255,.007) 4px
+      );
+    }
+    /* 3D perspective grid floor */
+    #bg-grid {
+      position: fixed; bottom: 0; left: 50%; z-index: 0; pointer-events: none;
+      transform: translateX(-50%) rotateX(70deg);
+      transform-origin: center bottom;
+      width: 260vw; height: 160vh;
+      background-image:
+        linear-gradient(rgba(0,229,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.06) 1px, transparent 1px);
+      background-size: 56px 56px;
+      opacity: .55;
+    }
+    /* Vignette over grid */
+    #bg-vignette {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse 100% 100% at 50% 100%,
+        transparent 20%, rgba(2,8,16,.82) 65%, rgba(2,8,16,.99) 100%
+      );
+    }
+    /* Ambient top glow */
+    #bg-glow {
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+      width: 70vw; height: 2px; z-index: 1; pointer-events: none;
+      background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+      box-shadow: 0 0 60px 20px rgba(0,229,255,.08);
+    }
+    /* Particles layer */
+    #bg-particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+    .pt {
+      position: absolute; border-radius: 50%; opacity: 0;
+      animation: ptFloat linear infinite;
+    }
+    @keyframes ptFloat {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      8%   { opacity: .5; }
+      92%  { opacity: .2; }
+      100% { transform: translateY(-20vh) translateX(var(--dx)); opacity: 0; }
+    }
 
-    /* ── HEADER ── */
-    header { display:flex; align-items:center; justify-content:space-between; padding:20px 0 16px; border-bottom:1px solid var(--border); gap:16px; flex-wrap:wrap; }
-    .logo-block { display:flex; flex-direction:column; gap:2px; }
-    .logo-top { font-family:'Orbitron',monospace; font-weight:900; font-size:1.6rem; color:var(--cyan); text-shadow:var(--glow-c); letter-spacing:.15em; line-height:1; }
-    .logo-sub { font-family:'Share Tech Mono',monospace; font-size:.7rem; color:var(--text-dim); letter-spacing:.3em; }
-    .header-right { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-    .live-badge { display:flex; align-items:center; gap:8px; font-family:'Share Tech Mono',monospace; font-size:.75rem; color:var(--green); letter-spacing:.1em; }
-    .pulse-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 1.4s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
-    .status-time { font-family:'Share Tech Mono',monospace; font-size:.78rem; color:var(--text-dim); }
-    .refresh-countdown { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:var(--text-dim); display:flex; align-items:center; gap:5px; }
-    .countdown-bar-wrap { width:40px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
-    .countdown-bar { height:100%; background:var(--cyan-dim); border-radius:2px; transition:width 1s linear; }
-    .loader { display:none; width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--cyan); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
-    .loader.active { display:block; }
-    @keyframes spin { to { transform:rotate(360deg); } }
+    :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
-    /* ── NAV TABS ── */
-    .nav-tabs { display:flex; gap:4px; margin:18px 0 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-    .tab-btn { background:transparent; border:1px solid transparent; border-bottom:none; padding:8px 20px; font-family:'Orbitron',monospace; font-size:.62rem; font-weight:700; letter-spacing:.15em; color:var(--text-dim); cursor:pointer; border-radius:3px 3px 0 0; transition:all .2s; position:relative; bottom:-1px; }
-    .tab-btn:hover { color:var(--cyan); background:rgba(0,229,255,.04); }
-    .tab-btn.active { color:var(--cyan); border-color:var(--border); border-bottom-color:var(--bg); background:var(--panel); text-shadow:var(--glow-c); }
-    .tab-btn:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
-    .tab-panel { display:none; padding-top:20px; }
-    .tab-panel.active { display:block; }
+    /* ── SKIP LINK ────────────────────────────────────────────────── */
+    .skip-link {
+      position: absolute; left: -9999px; top: 4px;
+      background: var(--cyan); color: var(--bg);
+      padding: 6px 14px; font-family: 'Orbitron', monospace; font-size: .65rem;
+      border-radius: 2px; z-index: 99999; letter-spacing: .1em;
+    }
+    .skip-link:focus { left: 12px; }
 
-    /* ── STATS ── */
-    .stats-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
-    .stat-card { background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:14px 16px; position:relative; overflow:hidden; clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%); transition:border-color .2s; }
-    .stat-card:hover { border-color:var(--cyan-dim); }
-    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--cyan),transparent); opacity:.5; }
-    .stat-label { font-family:'Share Tech Mono',monospace; font-size:.58rem; color:var(--text-dim); letter-spacing:.2em; text-transform:uppercase; margin-bottom:8px; }
-    .stat-value { font-family:'Orbitron',monospace; font-size:1.5rem; font-weight:700; color:var(--cyan); text-shadow:var(--glow-c); line-height:1; }
-    .stat-value.green  { color:var(--green);  text-shadow:var(--glow-g); }
-    .stat-value.amber  { color:var(--amber);  text-shadow:0 0 8px #ffb30066; }
-    .stat-value.violet { color:var(--violet); text-shadow:var(--glow-v); }
-    .stat-sub { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:var(--text-dim); margin-top:4px; }
+    /* ── LAYOUT ───────────────────────────────────────────────────── */
+    .layout {
+      position: relative; z-index: 2;
+      max-width: 1760px; margin: 0 auto;
+      padding: 0 24px 80px;
+    }
 
-    /* ── TOOLBAR ── */
-    .toolbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-    .search-wrap { position:relative; flex:1; min-width:200px; }
-    .search-wrap::before { content:'⌕'; position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--cyan-dim); font-size:1.1rem; pointer-events:none; }
-    .search-input { width:100%; background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:8px 12px 8px 32px; color:var(--text); font-family:'Share Tech Mono',monospace; font-size:.82rem; outline:none; transition:border-color .2s; }
-    .search-input:focus { border-color:var(--cyan); box-shadow:0 0 0 2px rgba(0,229,255,.1); }
-    .search-input::placeholder { color:var(--text-dim); }
-    .search-clear { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:.9rem; padding:2px 4px; display:none; line-height:1; }
-    .search-clear.visible { display:block; }
-    .search-clear:hover { color:var(--red); }
+    /* ══════════════════════════════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════════════════════════════ */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 0 18px;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(90deg, transparent, var(--border-hi) 20%, var(--cyan-dim) 50%, var(--border-hi) 80%, transparent) 1;
+      gap: 16px; flex-wrap: wrap;
+      position: relative;
+    }
+    /* Animated scan line across header bottom border */
+    header::after {
+      content: '';
+      position: absolute; bottom: -1px; left: -5%; right: -5%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      animation: headerScan 4s ease-in-out infinite;
+      opacity: .4;
+    }
+    @keyframes headerScan {
+      0%,100% { transform: scaleX(0); opacity: 0; }
+      50%      { transform: scaleX(1); opacity: .5; }
+    }
 
-    .btn { background:transparent; border:1px solid var(--border); border-radius:3px; padding:8px 14px; font-family:'Orbitron',monospace; font-size:.62rem; font-weight:700; letter-spacing:.15em; cursor:pointer; transition:all .2s; white-space:nowrap; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%); }
-    .btn:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
-    .btn-cyan   { color:var(--cyan);   border-color:var(--cyan-dim); }
-    .btn-cyan:hover { background:rgba(0,229,255,.08); box-shadow:var(--glow-c); border-color:var(--cyan); }
-    .btn-green  { color:var(--green);  border-color:var(--green-dim); }
-    .btn-green:hover { background:rgba(0,255,157,.08); box-shadow:var(--glow-g); border-color:var(--green); }
-    .btn-red    { color:var(--red);    border-color:var(--red-dim); }
-    .btn-red:hover { background:rgba(255,59,92,.08); border-color:var(--red); box-shadow:var(--glow-r); }
-    .btn-amber  { color:var(--amber);  border-color:var(--amber-dim); }
-    .btn-amber:hover { background:rgba(255,179,0,.08); border-color:var(--amber); }
-    .btn-violet { color:var(--violet); border-color:#5a3a88; }
-    .btn-violet:hover { background:rgba(191,127,255,.08); border-color:var(--violet); box-shadow:var(--glow-v); }
-    .btn-sm { padding:4px 10px; font-size:.54rem; }
-    .btn:disabled { opacity:.4; cursor:not-allowed; }
+    .logo-block { display: flex; flex-direction: column; gap: 3px; }
+
+    .logo-top {
+      font-family: 'Orbitron', monospace; font-weight: 900;
+      font-size: clamp(1.3rem, 3vw, 1.75rem);
+      color: var(--cyan); text-shadow: var(--glow-c);
+      letter-spacing: .18em; line-height: 1;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    /* Spinning hex before logo */
+    .logo-hex {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px;
+      border: 1.5px solid var(--cyan);
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      background: rgba(0,229,255,.07);
+      box-shadow: var(--glow-c);
+      animation: hexPulse 3s ease-in-out infinite;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .logo-hex::before {
+      content: '◈';
+      font-size: .7rem;
+      color: var(--cyan);
+    }
+    @keyframes hexPulse {
+      0%,100% { box-shadow: var(--glow-c); }
+      50%      { box-shadow: 0 0 16px #00e5ffcc, 0 0 40px #00e5ff44; }
+    }
+
+    .logo-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(.58rem, 1.2vw, .68rem);
+      color: var(--text-dim); letter-spacing: .3em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-sub::before {
+      content: '';
+      display: inline-block; width: 18px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-dim));
+    }
+
+    /* Header right cluster */
+    .header-right {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+
+    .live-badge {
+      display: flex; align-items: center; gap: 7px;
+      font-family: 'Share Tech Mono', monospace; font-size: .72rem;
+      color: var(--green); letter-spacing: .12em;
+      background: rgba(0,255,157,.05);
+      border: 1px solid var(--green-dim);
+      border-radius: 2px; padding: 4px 10px;
+    }
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 6px var(--green);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
+
+    .refresh-countdown {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Share Tech Mono', monospace; font-size: .65rem;
+      color: var(--text-dim);
+    }
+    .countdown-bar-wrap {
+      width: 44px; height: 3px;
+      background: rgba(13,58,82,.8); border-radius: 2px; overflow: hidden;
+      position: relative;
+    }
+    .countdown-bar {
+      height: 100%; background: var(--cyan-dim); border-radius: 2px;
+      transition: width 1s linear;
+      box-shadow: 0 0 6px var(--cyan-dim);
+    }
+
+    .status-time {
+      font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+      color: var(--text-dim); letter-spacing: .08em;
+    }
+
+    /* Spinner */
+    .loader {
+      display: none; width: 16px; height: 16px;
+      border: 1.5px solid rgba(0,229,255,.2);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      flex-shrink: 0;
+    }
+    .loader.active { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════════════════════════════════════════
+       BUTTONS
+    ══════════════════════════════════════════════════════════════ */
+    .btn {
+      position: relative;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 7px 14px;
+      font-family: 'Orbitron', monospace;
+      font-size: .58rem; font-weight: 700;
+      letter-spacing: .14em; cursor: pointer;
+      transition: all .2s ease; white-space: nowrap;
+      clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+      overflow: hidden;
+    }
+    /* Sweep effect */
+    .btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+      transform: translateX(-100%);
+      transition: transform .3s ease;
+    }
+    .btn:hover::before { transform: translateX(100%); }
+    .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+    .btn-cyan   { color: var(--cyan);   border-color: var(--cyan-dim); }
+    .btn-cyan:hover:not(:disabled)   { background: rgba(0,229,255,.08);   box-shadow: var(--glow-c);   border-color: var(--cyan); }
+    .btn-green  { color: var(--green);  border-color: var(--green-dim); }
+    .btn-green:hover:not(:disabled)  { background: rgba(0,255,157,.08);  box-shadow: var(--glow-g);  border-color: var(--green); }
+    .btn-red    { color: var(--red);    border-color: var(--red-dim); }
+    .btn-red:hover:not(:disabled)    { background: rgba(255,59,92,.08);   box-shadow: var(--glow-r);   border-color: var(--red); }
+    .btn-amber  { color: var(--amber);  border-color: var(--amber-dim); }
+    .btn-amber:hover:not(:disabled)  { background: rgba(255,179,0,.08);  box-shadow: var(--glow-a);  border-color: var(--amber); }
+    .btn-violet { color: var(--violet); border-color: var(--violet-dim); }
+    .btn-violet:hover:not(:disabled) { background: rgba(191,127,255,.08); box-shadow: var(--glow-v); border-color: var(--violet); }
+    .btn-sm { padding: 4px 10px; font-size: .52rem; }
+
+    /* ══════════════════════════════════════════════════════════════
+       NAV TABS
+    ══════════════════════════════════════════════════════════════ */
+    .nav-tabs {
+      display: flex; gap: 3px; margin: 20px 0 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap; position: relative;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent; border-bottom: none;
+      padding: 9px 22px;
+      font-family: 'Orbitron', monospace; font-size: .6rem; font-weight: 700;
+      letter-spacing: .16em; color: var(--text-dim);
+      cursor: pointer; border-radius: 3px 3px 0 0;
+      transition: all .2s; position: relative; bottom: -1px;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+    }
+    .tab-btn:hover { color: var(--cyan); background: rgba(0,229,255,.04); }
+    .tab-btn.active {
+      color: var(--cyan); border-color: var(--border-hi); border-bottom-color: var(--bg);
+      background: var(--panel); text-shadow: var(--glow-c);
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute; bottom: 0; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+    .tab-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .tab-panel { display: none; padding-top: 22px; }
+    .tab-panel.active { display: block; }
+
+    /* ══════════════════════════════════════════════════════════════
+       STAT CARDS
+    ══════════════════════════════════════════════════════════════ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px; margin-bottom: 22px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, var(--panel2) 0%, rgba(4,13,24,.8) 100%);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 16px 18px;
+      position: relative; overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+      transition: border-color .25s, transform .2s;
+      cursor: default;
+    }
+    .stat-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+    }
+    /* Top accent line */
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+      opacity: .7;
+    }
+    /* Corner cut glow */
+    .stat-card::after {
+      content: '';
+      position: absolute; top: -1px; right: -1px;
+      width: 20px; height: 20px;
+      background: var(--cyan-dim);
+      clip-path: polygon(0 0, 100% 100%, 100% 0);
+      opacity: .3;
+    }
+    .stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .55rem; color: var(--text-dim);
+      letter-spacing: .22em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .stat-value {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.3rem, 2.5vw, 1.65rem); font-weight: 700;
+      color: var(--cyan); text-shadow: var(--glow-c);
+      line-height: 1;
+      transition: transform .2s;
+    }
+    .stat-card:hover .stat-value { transform: scale(1.04); }
+    .stat-value.green  { color: var(--green);  text-shadow: var(--glow-g); }
+    .stat-value.amber  { color: var(--amber);  text-shadow: var(--glow-a); }
+    .stat-value.violet { color: var(--violet); text-shadow: var(--glow-v); }
+
+    /* ══════════════════════════════════════════════════════════════
+       ERROR BAR
+    ══════════════════════════════════════════════════════════════ */
+    #error-bar {
+      display: none;
+      background: rgba(255,59,92,.07); border: 1px solid var(--red-dim);
+      border-left: 3px solid var(--red);
+      border-radius: 2px; color: var(--red);
+      font-family: 'Share Tech Mono', monospace; font-size: .72rem;
+      padding: 10px 14px; margin: 0 0 14px;
+      box-shadow: 0 0 20px rgba(255,59,92,.1);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       TOOLBAR
+    ══════════════════════════════════════════════════════════════ */
+    .toolbar {
+      display: flex; align-items: center;
+      gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .search-wrap {
+      position: relative; flex: 1; min-width: 200px;
+    }
+    .search-wrap::before {
+      content: '⌕';
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--cyan-dim); font-size: 1.05rem; pointer-events: none;
+      z-index: 1;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--panel2); border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 8px 30px 8px 32px;
+      color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: .8rem;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+      caret-color: var(--cyan);
+    }
+    .search-input:focus {
+      border-color: var(--cyan-dim);
+      box-shadow: 0 0 0 2px rgba(0,229,255,.08), inset 0 0 20px rgba(0,229,255,.03);
+    }
+    .search-input::placeholder { color: var(--text-dim); font-size: .74rem; }
+    .search-clear {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-dim);
+      cursor: pointer; font-size: .85rem; padding: 2px 4px;
+      display: none; line-height: 1; transition: color .15s;
+    }
+    .search-clear.visible { display: block; }
+    .search-clear:hover { color: var(--red); }
 
     /* Column toggle dropdown */
-    .column-toggle-wrap { position:relative; }
-    .col-dropdown { display:none; position:absolute; top:calc(100% + 6px); right:0; background:var(--panel); border:1px solid var(--cyan-dim); border-radius:4px; padding:8px; z-index:200; min-width:180px; box-shadow:0 8px 24px rgba(0,0,0,.6),var(--glow-c); }
-    .col-dropdown.open { display:block; }
-    .col-item { display:flex; align-items:center; gap:8px; padding:5px 8px; font-family:'Share Tech Mono',monospace; font-size:.72rem; color:var(--text); cursor:pointer; border-radius:2px; transition:background .15s; }
-    .col-item:hover { background:rgba(0,229,255,.08); }
-    .col-item input[type=checkbox] { accent-color:var(--cyan); width:13px; height:13px; }
+    .column-toggle-wrap { position: relative; }
+    .col-dropdown {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--panel2); border: 1px solid var(--cyan-dim);
+      border-radius: 3px; padding: 8px; z-index: 200; min-width: 190px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.8), var(--glow-c);
+      animation: dropIn .15s ease;
+    }
+    @keyframes dropIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+    .col-dropdown.open { display: block; }
+    .col-dropdown-title {
+      font-family: 'Orbitron', monospace; font-size: .52rem; color: var(--cyan-dim);
+      letter-spacing: .18em; padding: 4px 8px 8px; border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+    .col-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 8px; font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem; color: var(--text); cursor: pointer;
+      border-radius: 2px; transition: background .12s;
+    }
+    .col-item:hover { background: rgba(0,229,255,.07); color: var(--cyan); }
+    .col-item input[type=checkbox] { accent-color: var(--cyan); width: 12px; height: 12px; }
 
-    /* ── TABLE ── */
-    .table-wrap { background:var(--panel); border:1px solid var(--border); border-radius:4px; overflow:auto; box-shadow:0 4px 30px rgba(0,0,0,.5); }
-    table { width:100%; border-collapse:collapse; min-width:860px; }
-    thead { position:sticky; top:0; z-index:10; }
-    th { background:#061220; color:var(--cyan); font-family:'Orbitron',monospace; font-size:.57rem; font-weight:700; letter-spacing:.12em; padding:11px 9px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--cyan-dim); cursor:pointer; user-select:none; transition:background .15s; }
-    th:hover { background:rgba(0,229,255,.07); }
-    th.no-sort { cursor:default; }
-    th.no-sort:hover { background:#061220; }
-    th .sort-icon { opacity:.4; margin-left:4px; font-size:.5rem; }
-    th.sort-asc  .sort-icon::after { content:'▲'; opacity:1; color:var(--green); }
-    th.sort-desc .sort-icon::after { content:'▼'; opacity:1; color:var(--amber); }
-    th:not(.sort-asc):not(.sort-desc):not(.no-sort) .sort-icon::after { content:'⇅'; }
-    td { padding:9px; font-family:'Rajdhani',sans-serif; font-size:.88rem; border-bottom:1px solid rgba(13,58,82,.5); vertical-align:middle; color:var(--text); }
-    tr { transition:background .1s; }
-    tr:hover td { background:rgba(0,229,255,.04); }
-    tr:nth-child(even) td { background:rgba(6,14,22,.4); }
-    tr:nth-child(even):hover td { background:rgba(0,229,255,.05); }
-    .hidden-col { display:none; }
+    /* ══════════════════════════════════════════════════════════════
+       TABLE
+    ══════════════════════════════════════════════════════════════ */
+    .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 3px; overflow: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,.7), inset 0 1px 0 rgba(0,229,255,.06);
+      position: relative;
+    }
+    /* Top glow strip */
+    .table-wrap::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+      z-index: 5; pointer-events: none;
+    }
+
+    table { width: 100%; border-collapse: collapse; min-width: 860px; }
+    thead { position: sticky; top: 0; z-index: 10; }
+    th {
+      background: linear-gradient(180deg, #061624 0%, #040e1a 100%);
+      color: var(--cyan);
+      font-family: 'Orbitron', monospace; font-size: .54rem; font-weight: 700;
+      letter-spacing: .14em; padding: 12px 10px;
+      text-align: left; white-space: nowrap;
+      border-bottom: 1px solid var(--cyan-dim);
+      cursor: pointer; user-select: none;
+      transition: background .15s, color .15s;
+      position: relative;
+    }
+    th::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+    }
+    th:hover { background: rgba(0,229,255,.07); }
+    th.no-sort { cursor: default; }
+    th.no-sort:hover { background: linear-gradient(180deg, #061624 0%, #040e1a 100%); }
+    th .sort-icon { opacity: .35; margin-left: 5px; font-size: .48rem; }
+    th.sort-asc  .sort-icon::after { content: '▲'; opacity: 1; color: var(--green); }
+    th.sort-desc .sort-icon::after { content: '▼'; opacity: 1; color: var(--amber); }
+    th:not(.sort-asc):not(.sort-desc):not(.no-sort) .sort-icon::after { content: '⇅'; }
+
+    td {
+      padding: 9px 10px;
+      font-family: 'Rajdhani', sans-serif; font-size: .88rem;
+      border-bottom: 1px solid rgba(13,58,82,.4);
+      vertical-align: middle; color: var(--text);
+      transition: background .08s;
+    }
+    tr { transition: background .08s; }
+    tr:hover td { background: rgba(0,229,255,.04); }
+    tr:nth-child(even) td { background: rgba(4,13,24,.5); }
+    tr:nth-child(even):hover td { background: rgba(0,229,255,.05); }
+    .hidden-col { display: none; }
 
     /* PHOTO */
-    .photo-cell { text-align:center; }
-    .photo-thumb { width:64px; height:46px; object-fit:cover; border-radius:3px; border:1px solid var(--cyan-dim); cursor:pointer; transition:all .15s; filter:saturate(.8) brightness(.9); }
-    .photo-thumb:hover { transform:scale(1.1); filter:saturate(1.1) brightness(1.1); box-shadow:var(--glow-c); border-color:var(--cyan); }
+    .photo-cell { text-align: center; }
+    .photo-thumb {
+      width: 66px; height: 48px; object-fit: cover;
+      border-radius: 2px; border: 1px solid var(--cyan-dim);
+      cursor: pointer; transition: all .2s;
+      filter: saturate(.75) brightness(.88);
+    }
+    .photo-thumb:hover {
+      transform: scale(1.15);
+      filter: saturate(1.1) brightness(1.05);
+      box-shadow: var(--glow-c); border-color: var(--cyan);
+    }
 
     /* BADGES */
-    .badge { display:inline-block; padding:2px 7px; border-radius:2px; font-family:'Share Tech Mono',monospace; font-size:.66rem; }
-    .badge-ok   { background:rgba(0,255,157,.1);  color:var(--green);  border:1px solid var(--green-dim); }
-    .badge-no   { background:rgba(255,59,92,.1);  color:var(--red);    border:1px solid var(--red-dim); }
-    .badge-id   { background:rgba(0,229,255,.08); color:var(--cyan);   border:1px solid var(--cyan-dim); }
-    .badge-name { background:rgba(191,127,255,.1);color:var(--violet); border:1px solid #5a3a88; cursor:pointer; }
-    .badge-name:hover { background:rgba(191,127,255,.2); }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace; font-size: .63rem;
+    }
+    .badge-ok   { background: rgba(0,255,157,.08);  color: var(--green);  border: 1px solid var(--green-dim); }
+    .badge-no   { background: rgba(255,59,92,.08);  color: var(--red);    border: 1px solid var(--red-dim); }
+    .badge-id   { background: rgba(0,229,255,.07);  color: var(--cyan);   border: 1px solid var(--cyan-dim); }
+    .badge-name {
+      background: rgba(191,127,255,.09); color: var(--violet);
+      border: 1px solid var(--violet-dim); cursor: pointer;
+      transition: background .15s;
+    }
+    .badge-name:hover { background: rgba(191,127,255,.2); }
 
     /* BATTERY */
-    .battery-wrap { display:flex; align-items:center; gap:6px; font-family:'Share Tech Mono',monospace; font-size:.72rem; }
-    .battery-bar { width:38px; height:10px; background:var(--bg2); border:1px solid var(--border); border-radius:2px; overflow:hidden; }
-    .battery-fill { height:100%; border-radius:1px; }
-    .battery-fill.high { background:var(--green); }
-    .battery-fill.mid  { background:var(--amber); }
-    .battery-fill.low  { background:var(--red); }
+    .battery-wrap { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: .7rem; }
+    .battery-bar {
+      width: 36px; height: 9px; background: var(--bg2);
+      border: 1px solid var(--border); border-radius: 2px; overflow: hidden;
+      position: relative;
+    }
+    .battery-fill { height: 100%; border-radius: 1px; transition: width .4s ease; }
+    .battery-fill.high { background: var(--green); box-shadow: 0 0 6px rgba(0,255,157,.4); }
+    .battery-fill.mid  { background: var(--amber); box-shadow: 0 0 6px rgba(255,179,0,.3); }
+    .battery-fill.low  { background: var(--red);   box-shadow: 0 0 6px rgba(255,59,92,.4); animation: battFlash 1s ease-in-out infinite; }
+    @keyframes battFlash { 0%,100%{opacity:1} 50%{opacity:.5} }
 
     /* COORD */
-    .coord-link { color:var(--cyan); font-family:'Share Tech Mono',monospace; font-size:.73rem; text-decoration:none; border-bottom:1px dotted var(--cyan-dim); }
-    .coord-link:hover { color:var(--green); border-color:var(--green); }
+    .coord-link {
+      color: var(--cyan); font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+      text-decoration: none; border-bottom: 1px dotted var(--cyan-dim);
+      transition: color .15s;
+    }
+    .coord-link:hover { color: var(--green); border-color: var(--green); }
 
     /* ROW ACTIONS */
-    .row-actions { display:flex; gap:5px; align-items:center; }
+    .row-actions { display: flex; gap: 4px; align-items: center; }
 
-    /* EMPTY / ERROR */
-    .empty { text-align:center; padding:50px 20px; font-family:'Share Tech Mono',monospace; font-size:.82rem; color:var(--text-dim); }
-    .empty::before { content:'// '; color:var(--cyan-dim); }
-    #error-bar { background:rgba(255,59,92,.08); border:1px solid var(--red-dim); border-radius:3px; color:var(--red); font-family:'Share Tech Mono',monospace; font-size:.75rem; padding:10px 14px; margin:0 0 12px; display:none; }
+    /* EMPTY */
+    .empty {
+      text-align: center; padding: 60px 20px;
+      font-family: 'Share Tech Mono', monospace; font-size: .8rem; color: var(--text-dim);
+    }
+    .empty::before { content: '// '; color: var(--cyan-dim); }
 
-    /* ── FOOTER ── */
-    .footer-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 0; font-family:'Share Tech Mono',monospace; font-size:.67rem; color:var(--text-dim); border-top:1px solid var(--border); margin-top:10px; flex-wrap:wrap; gap:8px; }
-    .row-count { color:var(--cyan); }
-    .pagination { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-    .page-btn { background:var(--panel); border:1px solid var(--border); border-radius:2px; color:var(--text); padding:4px 9px; cursor:pointer; transition:all .15s; font-family:'Orbitron',monospace; font-size:.57rem; }
-    .page-btn:hover:not(:disabled) { border-color:var(--cyan); color:var(--cyan); }
-    .page-btn.active { border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,.08); }
-    .page-btn:disabled { opacity:.3; cursor:default; }
-    .page-size-select { background:var(--panel); border:1px solid var(--border); border-radius:2px; color:var(--text-dim); font-family:'Share Tech Mono',monospace; font-size:.65rem; padding:3px 6px; cursor:pointer; outline:none; }
-    .page-size-select:focus { border-color:var(--cyan); }
+    /* ══════════════════════════════════════════════════════════════
+       FOOTER BAR
+    ══════════════════════════════════════════════════════════════ */
+    .footer-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 2px; margin-top: 10px;
+      border-top: 1px solid var(--border);
+      font-family: 'Share Tech Mono', monospace; font-size: .64rem;
+      color: var(--text-dim); flex-wrap: wrap; gap: 8px;
+    }
+    .row-count { color: var(--cyan); font-weight: bold; }
+    .pagination { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .page-btn {
+      background: var(--panel2); border: 1px solid var(--border);
+      border-radius: 2px; color: var(--text-dim);
+      padding: 4px 9px; cursor: pointer;
+      transition: all .15s; font-family: 'Orbitron', monospace; font-size: .54rem;
+      clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%);
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,.06); }
+    .page-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,.1); box-shadow: var(--glow-c); }
+    .page-btn:disabled { opacity: .25; cursor: default; }
+    .page-size-select {
+      background: var(--panel2); border: 1px solid var(--border);
+      border-radius: 2px; color: var(--text-dim);
+      font-family: 'Share Tech Mono', monospace; font-size: .62rem;
+      padding: 3px 7px; cursor: pointer; outline: none;
+    }
+    .page-size-select:focus { border-color: var(--cyan); }
 
-    /* ── MODALS ── */
-    .modal-overlay { display:none; position:fixed; inset:0; z-index:8000; background:rgba(0,0,0,.84); align-items:center; justify-content:center; backdrop-filter:blur(3px); }
-    .modal-overlay.open { display:flex; }
-    .modal { background:var(--panel); border:1px solid var(--border); border-radius:6px; width:min(680px,95vw); max-height:88vh; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.8),var(--glow-c); display:flex; flex-direction:column; animation:modalIn .2s ease; }
-    @keyframes modalIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:none} }
-    .modal.modal-sm { width:min(440px,95vw); }
-    .modal.modal-danger { border-color:var(--red-dim); box-shadow:0 20px 60px rgba(0,0,0,.8),var(--glow-r); }
-    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); background:rgba(6,14,22,.6); flex-shrink:0; }
-    .modal-title { font-family:'Orbitron',monospace; font-size:.8rem; font-weight:700; letter-spacing:.15em; color:var(--cyan); text-shadow:var(--glow-c); }
-    .modal-close { background:transparent; border:none; color:var(--text-dim); font-size:1.1rem; cursor:pointer; padding:4px 8px; border-radius:3px; transition:color .15s; line-height:1; }
-    .modal-close:hover { color:var(--red); }
-    .modal-close:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
-    .modal-body { padding:20px; overflow-y:auto; flex:1; }
-    .modal-footer { padding:14px 20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; flex-shrink:0; flex-wrap:wrap; }
+    /* ══════════════════════════════════════════════════════════════
+       QUERY PANEL
+    ══════════════════════════════════════════════════════════════ */
+    .query-panel-wrap {
+      max-width: 940px;
+    }
+    .query-info {
+      font-family: 'Share Tech Mono', monospace; font-size: .72rem;
+      color: var(--text-dim); margin-bottom: 16px; line-height: 1.8;
+      background: rgba(0,229,255,.02); border-left: 2px solid var(--cyan-dim);
+      padding: 10px 14px; border-radius: 0 3px 3px 0;
+    }
+    .query-box {
+      background: linear-gradient(135deg, var(--panel2) 0%, rgba(4,13,24,.9) 100%);
+      border: 1px solid var(--border); border-radius: 3px; padding: 22px;
+      position: relative; overflow: hidden;
+    }
+    /* Top accent line */
+    .query-box::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--amber-dim), transparent);
+    }
+    .query-box-title {
+      font-family: 'Orbitron', monospace; font-size: .63rem; font-weight: 700;
+      color: var(--amber); letter-spacing: .18em; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .query-box-title::before {
+      content: '⌘';
+      color: var(--amber);
+    }
 
-    /* ── FORMS ── */
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .form-grid.single { grid-template-columns:1fr; }
-    .field-group { display:flex; flex-direction:column; gap:5px; }
-    .field-group.full { grid-column:1/-1; }
-    .field-label { font-family:'Share Tech Mono',monospace; font-size:.63rem; color:var(--cyan-dim); letter-spacing:.15em; text-transform:uppercase; }
-    .field-input,.field-textarea { background:var(--bg2); border:1px solid var(--border); border-radius:3px; padding:8px 10px; color:var(--text); font-family:'Share Tech Mono',monospace; font-size:.78rem; outline:none; transition:border-color .2s; width:100%; }
-    .field-input:focus,.field-textarea:focus { border-color:var(--cyan); box-shadow:0 0 0 2px rgba(0,229,255,.1); }
-    .field-input::placeholder,.field-textarea::placeholder { color:var(--text-dim); }
-    .field-textarea { resize:vertical; min-height:70px; }
-    .field-readonly { background:rgba(0,0,0,.3); color:var(--text-dim); cursor:default; }
-    .section-sep { grid-column:1/-1; border:none; border-top:1px solid var(--border); margin:4px 0; }
+    .query-snippets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .snippet-btn {
+      font-family: 'Share Tech Mono', monospace; font-size: .6rem;
+      color: var(--amber); background: rgba(255,179,0,.04);
+      border: 1px solid var(--amber-dim); border-radius: 2px;
+      padding: 4px 10px; cursor: pointer;
+      transition: all .15s;
+      clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%);
+    }
+    .snippet-btn:hover { background: rgba(255,179,0,.12); border-color: var(--amber); box-shadow: var(--glow-a); }
 
-    /* ── SQL ── */
-    .sql-editor { background:var(--bg2); border:1px solid var(--border); border-radius:4px; padding:14px; color:var(--green); font-family:'Share Tech Mono',monospace; font-size:.82rem; width:100%; min-height:120px; resize:vertical; outline:none; transition:border-color .2s; line-height:1.6; tab-size:2; }
-    .sql-editor:focus { border-color:var(--cyan); box-shadow:0 0 0 2px rgba(0,229,255,.1); }
-    .sql-editor::placeholder { color:var(--text-dim); }
-    .sql-toolbar { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; align-items:center; }
-    .sql-hist-btn { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:var(--text-dim); background:var(--bg2); border:1px solid var(--border); border-radius:3px; padding:4px 9px; cursor:pointer; transition:all .15s; }
-    .sql-hist-btn:hover { color:var(--cyan); border-color:var(--cyan-dim); }
-    .query-snippets { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
-    .snippet-btn { font-family:'Share Tech Mono',monospace; font-size:.62rem; color:var(--amber); background:rgba(255,179,0,.05); border:1px solid var(--amber-dim); border-radius:2px; padding:3px 9px; cursor:pointer; transition:all .15s; }
-    .snippet-btn:hover { background:rgba(255,179,0,.12); border-color:var(--amber); }
-    .sql-result-wrap { margin-top:16px; }
-    .sql-result-label { font-family:'Share Tech Mono',monospace; font-size:.65rem; color:var(--text-dim); letter-spacing:.15em; margin-bottom:8px; }
-    .sql-result-table-wrap { overflow:auto; max-height:300px; border:1px solid var(--border); border-radius:3px; }
-    .sql-result-table { width:100%; border-collapse:collapse; min-width:300px; }
-    .sql-result-table th { background:#061220; color:var(--amber); font-family:'Orbitron',monospace; font-size:.54rem; letter-spacing:.1em; padding:7px 9px; border-bottom:1px solid var(--amber-dim); text-align:left; white-space:nowrap; }
-    .sql-result-table td { font-family:'Share Tech Mono',monospace; font-size:.72rem; padding:6px 9px; border-bottom:1px solid rgba(13,58,82,.4); color:var(--text); }
-    .sql-result-table tr:hover td { background:rgba(255,179,0,.04); }
-    .sql-result-empty { padding:20px; text-align:center; font-family:'Share Tech Mono',monospace; font-size:.75rem; color:var(--text-dim); }
-    .sql-result-error { padding:12px; background:rgba(255,59,92,.06); border-radius:3px; font-family:'Share Tech Mono',monospace; font-size:.75rem; color:var(--red); }
-    .sql-affected { padding:12px; background:rgba(0,255,157,.05); border-radius:3px; font-family:'Share Tech Mono',monospace; font-size:.75rem; color:var(--green); }
-    .hist-panel { display:none; background:var(--bg2); border:1px solid var(--border); border-radius:3px; max-height:140px; overflow-y:auto; margin-top:10px; }
-    .hist-item { display:block; width:100%; text-align:left; padding:6px 10px; font-family:'Share Tech Mono',monospace; font-size:.68rem; color:var(--text-dim); background:transparent; border:none; border-bottom:1px solid rgba(13,58,82,.3); cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:background .12s; }
-    .hist-item:hover { background:rgba(0,229,255,.06); color:var(--cyan); }
+    .sql-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+    .sql-hist-btn {
+      font-family: 'Share Tech Mono', monospace; font-size: .65rem;
+      color: var(--text-dim); background: var(--bg2);
+      border: 1px solid var(--border); border-radius: 2px;
+      padding: 5px 10px; cursor: pointer; transition: all .15s;
+    }
+    .sql-hist-btn:hover { color: var(--cyan); border-color: var(--cyan-dim); }
 
-    /* ── DELETE CONFIRM ── */
-    .delete-warning { text-align:center; padding:10px 0; }
-    .delete-icon { font-size:2.5rem; margin-bottom:12px; }
-    .delete-warning p { font-family:'Share Tech Mono',monospace; font-size:.8rem; color:var(--text); line-height:1.7; }
-    .delete-warning strong { color:var(--red); }
+    .sql-editor {
+      background: rgba(2,8,16,.9); border: 1px solid var(--border);
+      border-radius: 3px; padding: 14px;
+      color: var(--green); font-family: 'Share Tech Mono', monospace;
+      font-size: .82rem; width: 100%; min-height: 130px;
+      resize: vertical; outline: none; transition: border-color .2s, box-shadow .2s;
+      line-height: 1.65; tab-size: 2; caret-color: var(--green);
+      border-left: 2px solid var(--green-dim);
+    }
+    .sql-editor:focus {
+      border-color: var(--cyan-dim);
+      border-left-color: var(--green);
+      box-shadow: 0 0 0 2px rgba(0,229,255,.08), inset 0 0 30px rgba(0,255,157,.02);
+    }
+    .sql-editor::placeholder { color: var(--text-dim); }
 
-    /* ── LIGHTBOX ── */
-    #lightbox { display:none; position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,.93); align-items:center; justify-content:center; flex-direction:column; gap:12px; cursor:zoom-out; }
-    #lightbox.open { display:flex; }
-    #lightbox img { max-width:90vw; max-height:80vh; border:1px solid var(--cyan-dim); border-radius:4px; box-shadow:var(--glow-c),0 0 60px rgba(0,0,0,.8); }
-    #lightbox-label { font-family:'Share Tech Mono',monospace; font-size:.73rem; color:var(--text-dim); }
+    .hist-panel {
+      display: none; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 3px; max-height: 140px; overflow-y: auto; margin-top: 10px;
+    }
+    .hist-item {
+      display: block; width: 100%; text-align: left;
+      padding: 6px 12px; font-family: 'Share Tech Mono', monospace;
+      font-size: .67rem; color: var(--text-dim); background: transparent;
+      border: none; border-bottom: 1px solid rgba(13,58,82,.3);
+      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: background .12s, color .12s;
+    }
+    .hist-item:hover { background: rgba(0,229,255,.06); color: var(--cyan); }
 
-    /* ── TOASTS ── */
-    .toast-stack { position:fixed; bottom:20px; right:20px; z-index:9500; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
-    .toast { background:var(--panel); border-radius:4px; padding:10px 16px; font-family:'Share Tech Mono',monospace; font-size:.73rem; box-shadow:0 4px 20px rgba(0,0,0,.7); animation:toastIn .25s ease; pointer-events:none; }
-    .toast.out { animation:toastOut .25s ease forwards; }
-    @keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
-    @keyframes toastOut { to{opacity:0;transform:translateX(20px)} }
-    .t-green  { border:1px solid var(--green);  color:var(--green); }
-    .t-red    { border:1px solid var(--red);    color:var(--red); }
-    .t-cyan   { border:1px solid var(--cyan);   color:var(--cyan); }
-    .t-amber  { border:1px solid var(--amber);  color:var(--amber); }
-    .t-violet { border:1px solid var(--violet); color:var(--violet); }
+    .sql-result-label {
+      font-family: 'Share Tech Mono', monospace; font-size: .62rem;
+      color: var(--text-dim); letter-spacing: .18em; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sql-result-label::before { content: '//'; color: var(--cyan-dim); }
+    .sql-result-table-wrap { overflow: auto; max-height: 300px; border: 1px solid var(--border); border-radius: 3px; }
+    .sql-result-table { width: 100%; border-collapse: collapse; min-width: 300px; }
+    .sql-result-table th {
+      background: #061220; color: var(--amber);
+      font-family: 'Orbitron', monospace; font-size: .52rem;
+      letter-spacing: .1em; padding: 8px 10px;
+      border-bottom: 1px solid var(--amber-dim); text-align: left; white-space: nowrap;
+    }
+    .sql-result-table td {
+      font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+      padding: 7px 10px; border-bottom: 1px solid rgba(13,58,82,.35); color: var(--text);
+    }
+    .sql-result-table tr:hover td { background: rgba(255,179,0,.04); }
+    .sql-result-empty { padding: 24px; text-align: center; font-family: 'Share Tech Mono', monospace; font-size: .72rem; color: var(--text-dim); }
+    .sql-result-error {
+      padding: 12px 14px; background: rgba(255,59,92,.06); border-left: 3px solid var(--red);
+      border-radius: 0 3px 3px 0; font-family: 'Share Tech Mono', monospace; font-size: .73rem; color: var(--red);
+    }
+    .sql-affected {
+      padding: 12px 14px; background: rgba(0,255,157,.05); border-left: 3px solid var(--green);
+      border-radius: 0 3px 3px 0; font-family: 'Share Tech Mono', monospace; font-size: .73rem; color: var(--green);
+    }
 
-    :focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
+    /* ══════════════════════════════════════════════════════════════
+       MODALS
+    ══════════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 8000;
+      background: rgba(0,0,0,.88);
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
 
-    /* ── SETTINGS MODAL ── */
-    .cred-section-title { font-family:'Orbitron',monospace; font-size:.6rem; color:var(--amber); letter-spacing:.2em; margin:4px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--border); }
-    .cred-hint { font-family:'Share Tech Mono',monospace; font-size:.64rem; color:var(--text-dim); margin-top:12px; line-height:1.6; }
-    #credMsg { display:none; border-radius:3px; font-family:'Share Tech Mono',monospace; font-size:.72rem; padding:8px 12px; margin-top:12px; }
-    #credMsg.ok  { background:rgba(0,255,157,.07); border:1px solid var(--green-dim); color:var(--green); }
-    #credMsg.err { background:rgba(255,59,92,.07);  border:1px solid var(--red-dim);   color:var(--red); }
+    .modal {
+      background: linear-gradient(135deg, var(--panel2) 0%, #040d18 100%);
+      border: 1px solid var(--border-hi);
+      border-radius: 3px;
+      width: min(700px, 95vw); max-height: 90vh; overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.9), var(--glow-c), inset 0 1px 0 rgba(0,229,255,.1);
+      display: flex; flex-direction: column;
+      animation: modalIn .22s cubic-bezier(.16,1,.3,1);
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-16px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    .modal.modal-sm { width: min(460px, 95vw); }
+    .modal.modal-danger {
+      border-color: var(--red-dim);
+      box-shadow: 0 30px 80px rgba(0,0,0,.9), var(--glow-r), inset 0 1px 0 rgba(255,59,92,.1);
+    }
 
-    @media (max-width:700px) {
-      .logo-top { font-size:1.1rem; }
-      .stats-row { grid-template-columns:repeat(2,1fr); }
-      .form-grid { grid-template-columns:1fr; }
-      .toolbar { gap:6px; }
-      .refresh-countdown { display:none; }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 22px; border-bottom: 1px solid var(--border);
+      background: rgba(4,13,24,.7); flex-shrink: 0;
+      position: relative;
+    }
+    .modal-header::after {
+      content: '';
+      position: absolute; bottom: 0; left: 5%; right: 5%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+    }
+    .modal-title {
+      font-family: 'Orbitron', monospace; font-size: .75rem; font-weight: 700;
+      letter-spacing: .16em; color: var(--cyan); text-shadow: var(--glow-c);
+    }
+    .modal-close {
+      background: transparent; border: 1px solid transparent;
+      border-radius: 2px; color: var(--text-dim);
+      font-size: 1rem; cursor: pointer;
+      padding: 3px 8px; transition: all .15s; line-height: 1;
+    }
+    .modal-close:hover { color: var(--red); border-color: var(--red-dim); background: rgba(255,59,92,.06); }
+    .modal-close:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+    .modal-body { padding: 22px; overflow-y: auto; flex: 1; }
+    .modal-footer {
+      padding: 14px 22px; border-top: 1px solid var(--border);
+      display: flex; gap: 10px; justify-content: flex-end;
+      flex-shrink: 0; flex-wrap: wrap;
+      background: rgba(4,13,24,.5);
+    }
+
+    /* ── FORMS ─────────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid.single { grid-template-columns: 1fr; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group.full { grid-column: 1/-1; }
+    .field-label {
+      font-family: 'Share Tech Mono', monospace; font-size: .6rem;
+      color: var(--cyan-dim); letter-spacing: .16em; text-transform: uppercase;
+    }
+    .field-input, .field-textarea {
+      background: rgba(2,8,16,.8); border: 1px solid var(--border);
+      border-radius: 2px; padding: 8px 11px; color: var(--text);
+      font-family: 'Share Tech Mono', monospace; font-size: .76rem;
+      outline: none; transition: border-color .2s, box-shadow .2s; width: 100%;
+      caret-color: var(--cyan);
+    }
+    .field-input:focus, .field-textarea:focus {
+      border-color: var(--cyan-dim); box-shadow: 0 0 0 2px rgba(0,229,255,.08);
+    }
+    .field-input::placeholder, .field-textarea::placeholder { color: var(--text-dim); }
+    .field-textarea { resize: vertical; min-height: 70px; }
+    .field-readonly { background: rgba(0,0,0,.4); color: var(--text-dim); cursor: default; }
+    .section-sep { grid-column: 1/-1; border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+    /* ── DELETE MODAL ──────────────────────────────────────────── */
+    .delete-warning { text-align: center; padding: 14px 0 6px; }
+    .delete-icon {
+      font-size: 2.8rem; margin-bottom: 14px; display: block;
+      animation: deleteShake 2s ease-in-out infinite;
+    }
+    @keyframes deleteShake {
+      0%,100% { transform: none; }
+      10%,30% { transform: rotate(-4deg); }
+      20%,40% { transform: rotate(4deg); }
+      50%      { transform: none; }
+    }
+    .delete-warning p {
+      font-family: 'Share Tech Mono', monospace; font-size: .78rem;
+      color: var(--text); line-height: 1.8;
+    }
+    .delete-warning strong { color: var(--red); }
+
+    /* ── SETTINGS MODAL ────────────────────────────────────────── */
+    .cred-section-title {
+      font-family: 'Orbitron', monospace; font-size: .58rem;
+      color: var(--amber); letter-spacing: .22em;
+      margin: 4px 0 12px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cred-hint {
+      font-family: 'Share Tech Mono', monospace; font-size: .62rem;
+      color: var(--text-dim); margin-top: 12px; line-height: 1.65;
+      border-left: 2px solid var(--border); padding-left: 10px;
+    }
+    #credMsg {
+      display: none; border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+      padding: 8px 12px; margin-top: 12px;
+    }
+    #credMsg.ok  { background: rgba(0,255,157,.06); border: 1px solid var(--green-dim); border-left: 3px solid var(--green); color: var(--green); }
+    #credMsg.err { background: rgba(255,59,92,.06);  border: 1px solid var(--red-dim);  border-left: 3px solid var(--red);   color: var(--red); }
+
+    /* ══════════════════════════════════════════════════════════════
+       LIGHTBOX
+    ══════════════════════════════════════════════════════════════ */
+    #lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.96);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 14px; cursor: zoom-out;
+      backdrop-filter: blur(6px);
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img {
+      max-width: 88vw; max-height: 78vh;
+      border: 1px solid var(--cyan-dim); border-radius: 3px;
+      box-shadow: var(--glow-c), 0 0 80px rgba(0,0,0,.9);
+      animation: lbIn .2s ease;
+    }
+    @keyframes lbIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+    #lightbox-label {
+      font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+      color: var(--text-dim); letter-spacing: .12em;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       TOASTS
+    ══════════════════════════════════════════════════════════════ */
+    .toast-stack {
+      position: fixed; bottom: 22px; right: 22px; z-index: 9500;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      background: var(--panel2); border-radius: 2px;
+      padding: 10px 18px; font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+      box-shadow: 0 6px 30px rgba(0,0,0,.8); animation: toastIn .25s ease;
+      pointer-events: none;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.out { animation: toastOut .25s ease forwards; }
+    @keyframes toastIn  { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:none} }
+    @keyframes toastOut { to{opacity:0;transform:translateX(24px)} }
+    .t-green  { border: 1px solid var(--green);  border-left: 3px solid var(--green);  color: var(--green); }
+    .t-red    { border: 1px solid var(--red);    border-left: 3px solid var(--red);    color: var(--red); }
+    .t-cyan   { border: 1px solid var(--cyan);   border-left: 3px solid var(--cyan);   color: var(--cyan); }
+    .t-amber  { border: 1px solid var(--amber);  border-left: 3px solid var(--amber);  color: var(--amber); }
+    .t-violet { border: 1px solid var(--violet); border-left: 3px solid var(--violet); color: var(--violet); }
+
+    /* ══════════════════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════════════════ */
+    @media (max-width: 700px) {
+      .logo-top      { font-size: 1.1rem; }
+      .stats-row     { grid-template-columns: repeat(2,1fr); }
+      .form-grid     { grid-template-columns: 1fr; }
+      .toolbar       { gap: 6px; }
+      .refresh-countdown { display: none; }
+      #bg-grid       { display: none; }
+    }
+    @media (max-width: 440px) {
+      .layout { padding: 0 12px 60px; }
     }
   </style>
 </head>
 <body>
 
+<!-- ── BACKGROUND LAYERS ─────────────────────────────────────────── -->
+<div id="bg-grid"      aria-hidden="true"></div>
+<div id="bg-vignette"  aria-hidden="true"></div>
+<div id="bg-glow"      aria-hidden="true"></div>
+<div id="bg-particles" aria-hidden="true"></div>
+
 <a href="#main-content" class="skip-link">SKIP TO CONTENT</a>
 
 <div class="layout">
 
+  <!-- ══════════════ HEADER ══════════════ -->
   <header role="banner">
     <div class="logo-block">
-      <div class="logo-top">◈ CAPTURES</div>
-      <div class="logo-sub" aria-hidden="true">// NODE TELEMETRY DASHBOARD v4.1</div>
+      <div class="logo-top">
+        <span class="logo-hex" aria-hidden="true"></span>
+        CAPTURES
+      </div>
+      <div class="logo-sub" aria-hidden="true">NODE TELEMETRY DASHBOARD v4.1</div>
     </div>
     <div class="header-right">
       <div class="live-badge" aria-live="polite">
         <div class="pulse-dot" aria-hidden="true"></div>LIVE FEED
       </div>
       <div class="refresh-countdown" title="Time until next auto-refresh">
-        <div class="countdown-bar-wrap"><div class="countdown-bar" id="countdownBar" style="width:100%"></div></div>
+        <div class="countdown-bar-wrap">
+          <div class="countdown-bar" id="countdownBar" style="width:100%"></div>
+        </div>
         <span id="countdownSec">30s</span>
       </div>
       <div class="status-time" id="statusTime" aria-live="polite">—</div>
       <div class="loader" id="loader" role="status" aria-label="Loading data"></div>
       <button class="btn btn-amber btn-sm" id="settingsBtn" title="Change credentials">⚙ SETTINGS</button>
-      <button class="btn btn-red btn-sm" id="logoutBtn" title="End session">⏻ DISCONNECT</button>
+      <button class="btn btn-red   btn-sm" id="logoutBtn"   title="End session">⏻ DISCONNECT</button>
     </div>
   </header>
 
+  <!-- ══════════════ TAB NAV ══════════════ -->
   <nav class="nav-tabs" role="tablist" aria-label="Dashboard sections">
     <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-records" id="btn-records" onclick="switchTab('records')">⊞ RECORDS</button>
     <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-query"   id="btn-query"   onclick="switchTab('query')">⌘ QUERY</button>
@@ -309,9 +950,10 @@
 
   <main id="main-content">
 
-    <!-- ══ RECORDS ══ -->
+    <!-- ════════════ RECORDS TAB ════════════ -->
     <div class="tab-panel active" id="tab-records" role="tabpanel" aria-labelledby="btn-records">
 
+      <!-- STAT CARDS -->
       <div class="stats-row" role="region" aria-label="Summary statistics">
         <div class="stat-card">
           <div class="stat-label">// TOTAL</div>
@@ -341,19 +983,27 @@
 
       <div id="error-bar" role="alert"></div>
 
+      <!-- TOOLBAR -->
       <div class="toolbar" role="toolbar" aria-label="Table controls">
         <div class="search-wrap">
-          <input type="search" class="search-input" id="searchInput" placeholder="FILTER RECORDS..." aria-label="Search and filter records" autocomplete="off">
-          <button class="search-clear" id="searchClearBtn" onclick="clearSearch()" aria-label="Clear search" title="Clear search">✕</button>
+          <input type="search" class="search-input" id="searchInput"
+                 placeholder="FILTER RECORDS..."
+                 aria-label="Search and filter records" autocomplete="off">
+          <button class="search-clear" id="searchClearBtn" onclick="clearSearch()"
+                  aria-label="Clear search" title="Clear search">✕</button>
         </div>
         <button class="btn btn-cyan" onclick="loadData()" title="Refresh data now">↺ REFRESH</button>
         <div class="column-toggle-wrap">
-          <button class="btn btn-cyan" onclick="toggleColDropdown()" id="colToggleBtn" aria-haspopup="true" aria-expanded="false" title="Show/hide columns">⊞ COLUMNS</button>
-          <div class="col-dropdown" id="colDropdown" role="menu" aria-label="Toggle columns"></div>
+          <button class="btn btn-cyan" onclick="toggleColDropdown()" id="colToggleBtn"
+                  aria-haspopup="true" aria-expanded="false" title="Show/hide columns">⊞ COLUMNS</button>
+          <div class="col-dropdown" id="colDropdown" role="menu" aria-label="Toggle columns">
+            <div class="col-dropdown-title">TOGGLE COLUMNS</div>
+          </div>
         </div>
         <button class="btn btn-green" onclick="exportCSV()" title="Export filtered data as CSV">⬇ EXPORT</button>
       </div>
 
+      <!-- TABLE -->
       <div class="table-wrap">
         <table id="dataTable" aria-label="Captured node records">
           <thead id="tableHead"></thead>
@@ -361,28 +1011,35 @@
         </table>
       </div>
 
+      <!-- FOOTER BAR -->
       <div class="footer-bar">
         <span>SHOWING <span class="row-count" id="rowCount">0</span> / <span id="rowTotal">0</span> RECORDS</span>
         <div class="pagination" id="pagination" role="navigation" aria-label="Table pages"></div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <label for="pageSizeSelect" style="font-size:.6rem">ROWS/PAGE</label>
-          <select class="page-size-select" id="pageSizeSelect" onchange="changePageSize(this.value)" aria-label="Rows per page">
+          <label for="pageSizeSelect" style="font-size:.6rem;letter-spacing:.1em">ROWS/PAGE</label>
+          <select class="page-size-select" id="pageSizeSelect"
+                  onchange="changePageSize(this.value)" aria-label="Rows per page">
             <option value="25">25</option>
             <option value="50">50</option>
             <option value="100">100</option>
           </select>
         </div>
       </div>
-    </div>
+    </div><!-- /tab-records -->
 
-    <!-- ══ QUERY ══ -->
+    <!-- ════════════ QUERY TAB ════════════ -->
     <div class="tab-panel" id="tab-query" role="tabpanel" aria-labelledby="btn-query">
-      <div style="max-width:900px">
-        <p style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
-          // Fire raw SQL against your Worker endpoint. POST <code style="color:var(--cyan)">?action=query</code> with <code style="color:var(--cyan)">{ "sql":"..." }</code>. Use <kbd style="background:var(--bg2);border:1px solid var(--border);padding:1px 5px;border-radius:2px;font-size:.7rem">Ctrl+Enter</kbd> to execute.
+      <div class="query-panel-wrap">
+        <p class="query-info">
+          // Fire raw SQL against your Worker endpoint. POST
+          <code style="color:var(--cyan)">?action=query</code> with
+          <code style="color:var(--cyan)">{ "sql":"..." }</code>. Use
+          <kbd style="background:var(--bg2);border:1px solid var(--border);padding:1px 6px;border-radius:2px;font-size:.7rem">Ctrl+Enter</kbd>
+          to execute.
         </p>
-        <div style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:20px;">
-          <div style="font-family:'Orbitron',monospace;font-size:.65rem;color:var(--amber);letter-spacing:.15em;margin-bottom:12px;">⌘ QUERY EDITOR</div>
+        <div class="query-box">
+          <div class="query-box-title">QUERY EDITOR</div>
+
           <div class="query-snippets" aria-label="Quick query snippets">
             <button class="snippet-btn" onclick="insertSnippet('SELECT * FROM captures LIMIT 50;')">SELECT *</button>
             <button class="snippet-btn" onclick="insertSnippet('SELECT COUNT(*) as total FROM captures;')">COUNT</button>
@@ -396,32 +1053,43 @@
             <button class="snippet-btn" onclick="insertSnippet('DELETE FROM captures WHERE id = ;')">DELETE ID</button>
             <button class="snippet-btn" onclick="insertSnippet('UPDATE captures SET public_ip = \'\' WHERE id = ;')">UPDATE</button>
           </div>
+
           <div class="sql-toolbar">
             <button class="btn btn-amber" onclick="runQuery()">▶ EXECUTE</button>
             <button class="btn btn-cyan btn-sm" onclick="clearQuery()">✕ CLEAR</button>
             <button class="sql-hist-btn" onclick="toggleQueryHistory()" id="histBtn" aria-expanded="false">HISTORY ▾</button>
-            <span style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-dim);margin-left:auto;" id="queryStatus" aria-live="polite"></span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:.64rem;color:var(--text-dim);margin-left:auto;"
+                  id="queryStatus" aria-live="polite"></span>
           </div>
-          <textarea class="sql-editor" id="sqlEditor" placeholder="SELECT * FROM captures LIMIT 10;" spellcheck="false" aria-label="SQL query editor" rows="5"></textarea>
+
+          <textarea class="sql-editor" id="sqlEditor"
+                    placeholder="SELECT * FROM captures LIMIT 10;"
+                    spellcheck="false" aria-label="SQL query editor" rows="5"></textarea>
+
           <div class="hist-panel" id="histPanel"><div id="histList"></div></div>
+
           <div id="sqlResultWrap" style="display:none;" aria-live="polite">
-            <div style="margin-top:16px;">
+            <div style="margin-top:18px;">
               <div class="sql-result-label" id="sqlResultLabel">RESULTS</div>
               <div id="sqlResultContent"></div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div><!-- /tab-query -->
 
   </main>
-</div>
+</div><!-- /layout -->
 
-<!-- SETTINGS MODAL -->
+<!-- ══════════════════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════════════════ -->
+
+<!-- SETTINGS -->
 <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
   <div class="modal modal-sm">
     <div class="modal-header">
-      <span class="modal-title" id="settingsModalTitle" style="color:var(--amber)">⚙ CHANGE CREDENTIALS</span>
+      <span class="modal-title" id="settingsModalTitle" style="color:var(--amber);text-shadow:var(--glow-a)">⚙ CHANGE CREDENTIALS</span>
       <button class="modal-close" onclick="closeModal('settingsModal')" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
@@ -429,20 +1097,28 @@
         <div class="cred-section-title">// VERIFY IDENTITY</div>
         <div class="field-group">
           <label class="field-label" for="credCurrentPass">CURRENT PASSWORD <span style="color:var(--red)">*</span></label>
-          <input class="field-input" id="credCurrentPass" type="password" autocomplete="current-password" maxlength="128" placeholder="Required to save any change">
+          <input class="field-input" id="credCurrentPass" type="password"
+                 autocomplete="current-password" maxlength="128"
+                 placeholder="Required to save any change">
         </div>
         <div class="cred-section-title" style="margin-top:16px;">// NEW VALUES (leave blank to keep current)</div>
         <div class="field-group">
           <label class="field-label" for="credNewUser">NEW USERNAME</label>
-          <input class="field-input" id="credNewUser" type="text" autocomplete="username" spellcheck="false" maxlength="64" placeholder="Leave blank to keep current">
+          <input class="field-input" id="credNewUser" type="text"
+                 autocomplete="username" spellcheck="false" maxlength="64"
+                 placeholder="Leave blank to keep current">
         </div>
         <div class="field-group">
           <label class="field-label" for="credNewPass">NEW PASSWORD</label>
-          <input class="field-input" id="credNewPass" type="password" autocomplete="new-password" maxlength="128" placeholder="Leave blank to keep current">
+          <input class="field-input" id="credNewPass" type="password"
+                 autocomplete="new-password" maxlength="128"
+                 placeholder="Leave blank to keep current">
         </div>
         <div class="field-group">
           <label class="field-label" for="credNewPassConfirm">CONFIRM NEW PASSWORD</label>
-          <input class="field-input" id="credNewPassConfirm" type="password" autocomplete="new-password" maxlength="128" placeholder="Repeat new password">
+          <input class="field-input" id="credNewPassConfirm" type="password"
+                 autocomplete="new-password" maxlength="128"
+                 placeholder="Repeat new password">
         </div>
         <div id="credMsg" role="alert"></div>
         <p class="cred-hint">// Other active sessions will be signed out automatically when credentials change.</p>
@@ -456,7 +1132,8 @@
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onclick="closeLightbox()" tabindex="-1">
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer"
+     onclick="closeLightbox()" tabindex="-1">
   <img id="lightboxImg" src="" alt="Captured photo">
   <div id="lightbox-label" aria-hidden="true"></div>
 </div>
@@ -474,7 +1151,7 @@
     <div class="modal-body"><div class="form-grid" id="editFormGrid"></div></div>
     <div class="modal-footer">
       <button class="btn btn-cyan" onclick="saveEdit()">✓ SAVE</button>
-      <button class="btn btn-red" onclick="closeModal('editModal')">✕ CANCEL</button>
+      <button class="btn btn-red"  onclick="closeModal('editModal')">✕ CANCEL</button>
     </div>
   </div>
 </div>
@@ -488,7 +1165,7 @@
     </div>
     <div class="modal-body">
       <div class="delete-warning">
-        <div class="delete-icon">⛌</div>
+        <span class="delete-icon">⛌</span>
         <p id="deleteWarningText">This action is <strong>irreversible</strong>.</p>
       </div>
     </div>
@@ -530,6 +1207,9 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT — ALL LOGIC PRESERVED VERBATIM
+══════════════════════════════════════════════════════════════ -->
 <script>
 "use strict";
 
@@ -556,11 +1236,9 @@ let queryHistory   = (() => {
 function getNames() {
   try { return JSON.parse(localStorage.getItem('recNames') || '{}'); } catch { return {}; }
 }
-function saveNames(n) {
-  localStorage.setItem('recNames', JSON.stringify(n));
-}
+function saveNames(n) { localStorage.setItem('recNames', JSON.stringify(n)); }
 
-// ── COLUMNS ──────────────────────────────────────────────────────────────
+// ── COLUMN HELPERS ────────────────────────────────────────────────────────
 function parseJ(v) {
   if (v == null || v === '') return null;
   if (typeof v === 'object') return v;
@@ -590,6 +1268,7 @@ function screenRes(r) {
   return (w && h) ? `${w}×${h}` : JSON.stringify(s);
 }
 
+// ── COLUMN DEFINITIONS ────────────────────────────────────────────────────
 const COLUMNS = [
   { key: 'id',                   label: 'ID',        vis: true,  sort: true,  render: r => `<span class="badge badge-id">${r.id ?? '-'}</span>` },
   { key: '_name',                label: 'NAME',      vis: true,  sort: false, render: r => {
@@ -676,35 +1355,27 @@ function fmtM(v) {
 function fpB(v) {
   return v ? `<span class="badge badge-ok" title="${esc(String(v).substring(0,60))}">YES</span>` : '<span class="badge badge-no">NO</span>';
 }
-function byId(id) {
-  return allData.find(r => String(r.id) === String(id));
-}
+function byId(id) { return allData.find(r => String(r.id) === String(id)); }
 
-// ── TOAST ────────────────────────────────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────────────────────
 function toast(msg, type = 't-cyan', dur = 2800) {
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   el.textContent = msg;
   document.getElementById('toastStack').appendChild(el);
-  setTimeout(() => {
-    el.classList.add('out');
-    setTimeout(() => el.remove(), 300);
-  }, dur);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, dur);
 }
 
-// ── TABS ─────────────────────────────────────────────────────────────────
+// ── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(id) {
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('active');
-    b.setAttribute('aria-selected', 'false');
-  });
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(`btn-${id}`).classList.add('active');
-  document.getElementById(`btn-${id}`).setAttribute('aria-selected', 'true');
+  document.getElementById(`btn-${id}`).setAttribute('aria-selected','true');
   document.getElementById(`tab-${id}`).classList.add('active');
 }
 
-// ── HEADER & COLUMNS ─────────────────────────────────────────────────────
+// ── HEADER & COLUMNS ──────────────────────────────────────────────────────
 function buildHeader() {
   const thead = document.getElementById('tableHead');
   thead.innerHTML = '';
@@ -712,15 +1383,12 @@ function buildHeader() {
   COLUMNS.forEach((col, i) => {
     const th = document.createElement('th');
     th.className = (col.vis ? '' : 'hidden-col') + (col.sort ? '' : ' no-sort');
-    th.setAttribute('scope', 'col');
+    th.setAttribute('scope','col');
     if (col.key === '_act' || col.key === '_name') {
       th.textContent = col.label;
     } else {
       th.innerHTML = col.label + (col.sort ? '<span class="sort-icon" aria-hidden="true"></span>' : '');
-      if (col.sort) {
-        th.setAttribute('aria-sort', 'none');
-        th.addEventListener('click', () => sortBy(col.key, i));
-      }
+      if (col.sort) { th.setAttribute('aria-sort','none'); th.addEventListener('click', () => sortBy(col.key, i)); }
     }
     tr.appendChild(th);
   });
@@ -729,20 +1397,21 @@ function buildHeader() {
 
 function buildColDropdown() {
   const dd = document.getElementById('colDropdown');
+  // Preserve title div
+  const title = dd.querySelector('.col-dropdown-title');
   dd.innerHTML = '';
+  if (title) dd.appendChild(title);
   COLUMNS.forEach((col, i) => {
-    if (['_act', '_name'].includes(col.key)) return;
+    if (['_act','_name'].includes(col.key)) return;
     const lbl = document.createElement('label');
     lbl.className = 'col-item';
-    lbl.setAttribute('role', 'menuitemcheckbox');
+    lbl.setAttribute('role','menuitemcheckbox');
     lbl.setAttribute('aria-checked', col.vis ? 'true' : 'false');
     lbl.innerHTML = `<input type="checkbox" ${col.vis ? 'checked' : ''} data-idx="${i}"> ${col.label}`;
     lbl.querySelector('input').addEventListener('change', e => {
       COLUMNS[i].vis = e.target.checked;
       lbl.setAttribute('aria-checked', String(e.target.checked));
-      buildHeader();
-      refreshColVis();
-      renderTable();
+      buildHeader(); refreshColVis(); renderTable();
     });
     dd.appendChild(lbl);
   });
@@ -753,87 +1422,73 @@ function toggleColDropdown() {
   const open = dd.classList.toggle('open');
   document.getElementById('colToggleBtn').setAttribute('aria-expanded', String(open));
 }
-
 document.addEventListener('click', e => {
   if (!e.target.closest('.column-toggle-wrap')) {
     document.getElementById('colDropdown').classList.remove('open');
-    document.getElementById('colToggleBtn').setAttribute('aria-expanded', 'false');
+    document.getElementById('colToggleBtn').setAttribute('aria-expanded','false');
   }
 });
 
 function refreshColVis() {
-  document.querySelectorAll('#tableHead th').forEach((th, i) => th.classList.toggle('hidden-col', !COLUMNS[i].vis));
+  document.querySelectorAll('#tableHead th').forEach((th,i) => th.classList.toggle('hidden-col',!COLUMNS[i].vis));
 }
 
-// ── SORT ─────────────────────────────────────────────────────────────────
+// ── SORT ──────────────────────────────────────────────────────────────────
 function sortBy(key, colIdx) {
-  if (sortKey === key) sortDir *= -1;
-  else { sortKey = key; sortDir = 1; }
-  document.querySelectorAll('#tableHead th').forEach((th, i) => {
-    th.classList.remove('sort-asc', 'sort-desc');
-    if (COLUMNS[i]?.sort) th.setAttribute('aria-sort', 'none');
+  if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('#tableHead th').forEach((th,i) => {
+    th.classList.remove('sort-asc','sort-desc');
+    if (COLUMNS[i]?.sort) th.setAttribute('aria-sort','none');
   });
   const ths = document.querySelectorAll('#tableHead th');
   if (ths[colIdx]) {
     ths[colIdx].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
     ths[colIdx].setAttribute('aria-sort', sortDir === 1 ? 'ascending' : 'descending');
   }
-  doSort(filteredData);
-  currentPage = 1;
-  renderTable();
+  doSort(filteredData); currentPage = 1; renderTable();
 }
-
 function doSort(arr) {
   if (!sortKey) return;
-  arr.sort((a, b) => {
-    let av = a[sortKey] ?? '';
-    let bv = b[sortKey] ?? '';
+  arr.sort((a,b) => {
+    let av = a[sortKey] ?? '', bv = b[sortKey] ?? '';
     if (!isNaN(av) && !isNaN(bv) && av !== '' && bv !== '') { av = +av; bv = +bv; }
     return av < bv ? -sortDir : av > bv ? sortDir : 0;
   });
 }
 
-// ── PAGINATION & PAGE SIZE ───────────────────────────────────────────────
-function changePageSize(val) {
-  pageSize = parseInt(val, 10) || 25;
-  currentPage = 1;
-  renderTable();
-}
+// ── PAGINATION & PAGE SIZE ────────────────────────────────────────────────
+function changePageSize(val) { pageSize = parseInt(val,10) || 25; currentPage = 1; renderTable(); }
 
 function renderPagination() {
   const total = Math.ceil(filteredData.length / pageSize);
   const pg = document.getElementById('pagination');
   pg.innerHTML = '';
   if (total <= 1) return;
-
   const mkBtn = (label, page, disabled, active) => {
     const b = document.createElement('button');
     b.className = 'page-btn' + (active ? ' active' : '');
-    b.textContent = label;
-    b.disabled = disabled;
+    b.textContent = label; b.disabled = disabled;
     b.setAttribute('aria-label', typeof page === 'number' ? `Go to page ${page}` : label);
-    if (active) b.setAttribute('aria-current', 'page');
-    b.onclick = () => { currentPage = page; renderTable(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    if (active) b.setAttribute('aria-current','page');
+    b.onclick = () => { currentPage = page; renderTable(); window.scrollTo({top:0,behavior:'smooth'}); };
     return b;
   };
-
-  pg.appendChild(mkBtn('◀', currentPage - 1, currentPage <= 1, false));
+  pg.appendChild(mkBtn('◀', currentPage-1, currentPage<=1, false));
   for (let i = 1; i <= total; i++) {
-    if (total > 7 && Math.abs(i - currentPage) > 2 && i !== 1 && i !== total) {
-      if (i === 2 || i === total - 1) {
+    if (total > 7 && Math.abs(i-currentPage) > 2 && i !== 1 && i !== total) {
+      if (i === 2 || i === total-1) {
         const e = document.createElement('span');
-        e.textContent = '…';
-        e.style.cssText = 'color:var(--text-dim);padding:0 3px';
+        e.textContent = '…'; e.style.cssText = 'color:var(--text-dim);padding:0 3px';
         pg.appendChild(e);
       }
       continue;
     }
     pg.appendChild(mkBtn(i, i, false, i === currentPage));
   }
-  pg.appendChild(mkBtn('▶', currentPage + 1, currentPage >= total, false));
+  pg.appendChild(mkBtn('▶', currentPage+1, currentPage>=total, false));
 }
 
-// ── STATS ────────────────────────────────────────────────────────────────
+// ── STATS ─────────────────────────────────────────────────────────────────
 function updateStats(data) {
   const names = getNames();
   document.getElementById('statTotal').textContent   = data.length || '—';
@@ -843,10 +1498,10 @@ function updateStats(data) {
   const ips = new Set(data.map(r => r.public_ip).filter(Boolean));
   document.getElementById('statIPs').textContent     = ips.size || '—';
   const bats = data.map(r => battLevel(r)).filter(v => v != null);
-  document.getElementById('statBattery').textContent = bats.length ? Math.round(bats.reduce((a,b) => a+b, 0) / bats.length * 100) + '%' : '—';
+  document.getElementById('statBattery').textContent = bats.length ? Math.round(bats.reduce((a,b)=>a+b,0)/bats.length*100)+'%' : '—';
 }
 
-// ── FILTER ───────────────────────────────────────────────────────────────
+// ── FILTER ────────────────────────────────────────────────────────────────
 function applyFilter() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   document.getElementById('searchClearBtn').classList.toggle('visible', q.length > 0);
@@ -854,338 +1509,237 @@ function applyFilter() {
   filteredData = allData.filter(r => {
     if (!q) return true;
     const n = names[String(r.id)];
-    const ns = n ? (n.name + ' ' + (n.note || '')).toLowerCase() : '';
+    const ns = n ? (n.name+' '+(n.note||'')).toLowerCase() : '';
     return JSON.stringify(r).toLowerCase().includes(q) || ns.includes(q);
   });
-  doSort(filteredData);
-  currentPage = 1;
-  renderTable();
+  doSort(filteredData); currentPage = 1; renderTable();
 }
-
 function clearSearch() {
   document.getElementById('searchInput').value = '';
-  applyFilter();
-  document.getElementById('searchInput').focus();
+  applyFilter(); document.getElementById('searchInput').focus();
 }
-
 document.getElementById('searchInput').addEventListener('input', () => {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(applyFilter, 240);
+  clearTimeout(searchDebounce); searchDebounce = setTimeout(applyFilter, 240);
 });
 
-// ── AUTO-REFRESH ─────────────────────────────────────────────────────────
+// ── AUTO-REFRESH ──────────────────────────────────────────────────────────
 const REFRESH_INTERVAL = 30;
 let countdownLeft  = REFRESH_INTERVAL;
 let countdownTimer = null;
 
 function startCountdown() {
-  clearInterval(countdownTimer);
-  countdownLeft = REFRESH_INTERVAL;
-  updateCountdownUI();
+  clearInterval(countdownTimer); countdownLeft = REFRESH_INTERVAL; updateCountdownUI();
   countdownTimer = setInterval(() => {
-    countdownLeft--;
-    updateCountdownUI();
-    if (countdownLeft <= 0) {
-      countdownLeft = REFRESH_INTERVAL;
-      loadData();
-    }
+    countdownLeft--; updateCountdownUI();
+    if (countdownLeft <= 0) { countdownLeft = REFRESH_INTERVAL; loadData(); }
   }, 1000);
 }
-
 function updateCountdownUI() {
   const bar = document.getElementById('countdownBar');
   const sec = document.getElementById('countdownSec');
-  if (bar) bar.style.width = ((countdownLeft / REFRESH_INTERVAL) * 100) + '%';
-  if (sec) sec.textContent = countdownLeft + 's';
+  if (bar) bar.style.width = ((countdownLeft/REFRESH_INTERVAL)*100)+'%';
+  if (sec) sec.textContent = countdownLeft+'s';
 }
 
-// ── LOAD DATA ────────────────────────────────────────────────────────────
+// ── LOAD DATA ─────────────────────────────────────────────────────────────
 async function loadData() {
   const loader    = document.getElementById('loader');
   const statusTime = document.getElementById('statusTime');
   const errorBar  = document.getElementById('error-bar');
-
   loader.classList.add('active');
   errorBar.style.display = 'none';
-
   try {
     const url = WORKER_URL + (WORKER_URL.includes('?') ? '&' : '?') + CACHE_BUST();
-    const res = await fetch(url, { cache: 'no-store', credentials: 'include' });
-
-    if (res.status === 401 || res.status === 403) {
-      // Session expired — redirect to login (replace removes dashboard from history)
-      window.location.replace('index.html');
-      return;
-    }
-
+    const res = await fetch(url, { cache:'no-store', credentials:'include' });
+    if (res.status === 401 || res.status === 403) { window.location.replace('index.html'); return; }
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-
     allData = Array.isArray(data) ? data : [];
-    applyFilter();
-    updateStats(allData);
+    applyFilter(); updateStats(allData);
     statusTime.textContent = `SYNC ${new Date().toLocaleTimeString()}`;
   } catch (err) {
     console.error('loadData failed:', err);
-    errorBar.textContent = `⚠ ${err.message}`;
-    errorBar.style.display = 'block';
+    errorBar.textContent = `⚠ ${err.message}`; errorBar.style.display = 'block';
     statusTime.textContent = 'SYNC FAILED';
   } finally {
-    loader.classList.remove('active');
-    startCountdown();
+    loader.classList.remove('active'); startCountdown();
   }
 }
 
-// ── DELETE ───────────────────────────────────────────────────────────────
+// ── DELETE ────────────────────────────────────────────────────────────────
 function confirmDelete(ids) {
   pendingDeleteIds = ids;
   const safeId = parseInt(ids[0], 10);
   document.getElementById('deleteWarningText').innerHTML = ids.length === 1
     ? `Delete record <strong>#${safeId}</strong>? This is <strong>irreversible</strong>.`
-    : `Delete <strong>${parseInt(ids.length, 10)} records</strong>? This is <strong>irreversible</strong>.`;
+    : `Delete <strong>${parseInt(ids.length,10)} records</strong>? This is <strong>irreversible</strong>.`;
   document.getElementById('deleteConfirmBtn').onclick = executeDelete;
   openModal('deleteModal');
   setTimeout(() => document.getElementById('deleteConfirmBtn').focus(), 50);
 }
-
 async function executeDelete() {
   closeModal('deleteModal');
   const loader = document.getElementById('loader');
   loader.classList.add('active');
-
-  let ok = 0;
-  const errors = [];
-
+  let ok = 0; const errors = [];
   for (const id of pendingDeleteIds) {
     try {
       const res = await fetch(WORKER_URL, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', id: parseInt(id) })
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({action:'delete', id:parseInt(id)})
       });
-      let body = null;
-      try { body = await res.json(); } catch {}
+      let body = null; try { body = await res.json(); } catch {}
       if (!res.ok) throw new Error(body?.error || body?.detail || `HTTP ${res.status}`);
       if (body && (body.error || body.success === false)) throw new Error(body.error || 'Worker rejected delete');
-      allData = allData.filter(r => String(r.id) !== String(id));
-      ok++;
-    } catch (e) {
-      console.error(`Delete #${id} failed:`, e);
-      errors.push(`#${id}: ${e.message}`);
-    }
+      allData = allData.filter(r => String(r.id) !== String(id)); ok++;
+    } catch (e) { console.error(`Delete #${id} failed:`, e); errors.push(`#${id}: ${e.message}`); }
   }
-
-  loader.classList.remove('active');
-  applyFilter();
-  updateStats(allData);
-  pendingDeleteIds = [];
-
-  if (ok) toast(`✓ ${ok} record${ok > 1 ? 's' : ''} deleted`, 't-green');
+  loader.classList.remove('active'); applyFilter(); updateStats(allData); pendingDeleteIds = [];
+  if (ok) toast(`✓ ${ok} record${ok>1?'s':''} deleted`, 't-green');
   if (errors.length) toast(`⚠ Delete failed — ${errors[0]}`, 't-red', 6000);
 }
 
-// ── EDIT ─────────────────────────────────────────────────────────────────
+// ── EDIT ──────────────────────────────────────────────────────────────────
 const EDIT_FIELDS = [
-  { key: 'public_ip',            label: 'Public IP' },
-  { key: 'timezone',             label: 'Timezone' },
-  { key: 'platform',             label: 'Platform' },
-  { key: 'language',             label: 'Language' },
-  { key: 'device_memory',        label: 'Device Mem (GB)' },
-  { key: 'hardware_concurrency', label: 'HW Cores' },
-  { key: 'max_touch_points',     label: 'Max Touch Points' },
-  { key: 'geolocation_error',    label: 'Geolocation Error' },
-  { key: 'geolocation',          label: 'Geolocation JSON' },
-  { key: 'battery',              label: 'Battery JSON' },
-  { key: 'screen',               label: 'Screen JSON' },
-  { key: 'connection',           label: 'Connection JSON' },
+  { key:'public_ip',            label:'Public IP' },
+  { key:'timezone',             label:'Timezone' },
+  { key:'platform',             label:'Platform' },
+  { key:'language',             label:'Language' },
+  { key:'device_memory',        label:'Device Mem (GB)' },
+  { key:'hardware_concurrency', label:'HW Cores' },
+  { key:'max_touch_points',     label:'Max Touch Points' },
+  { key:'geolocation_error',    label:'Geolocation Error' },
+  { key:'geolocation',          label:'Geolocation JSON' },
+  { key:'battery',              label:'Battery JSON' },
+  { key:'screen',               label:'Screen JSON' },
+  { key:'connection',           label:'Connection JSON' },
 ];
-
 const RO_FIELDS = [
-  { key: 'id',               label: 'ID' },
-  { key: 'server_timestamp', label: 'Server Timestamp' },
-  { key: 'session_id',       label: 'Session ID' },
-  { key: 'url',              label: 'URL',        full: true },
-  { key: 'user_agent',       label: 'User Agent', full: true },
+  { key:'id',               label:'ID' },
+  { key:'server_timestamp', label:'Server Timestamp' },
+  { key:'session_id',       label:'Session ID' },
+  { key:'url',              label:'URL',        full:true },
+  { key:'user_agent',       label:'User Agent', full:true },
 ];
 
 function openEditModal(id) {
   const row = byId(id);
-  if (!row) { toast('Record not found', 't-red'); return; }
+  if (!row) { toast('Record not found','t-red'); return; }
   editingId = id;
-
   const grid = document.getElementById('editFormGrid');
   grid.innerHTML = '';
-
   RO_FIELDS.forEach(f => {
     const g = document.createElement('div');
-    g.className = 'field-group' + (f.full ? ' full' : '');
+    g.className = 'field-group'+(f.full?' full':'');
     g.innerHTML = `<label class="field-label" for="ef_${f.key}">${f.label.toUpperCase()}</label>
-                   <input type="text" class="field-input field-readonly" id="ef_${f.key}" value="${esc(row[f.key] ?? '')}" readonly aria-readonly="true">`;
+                   <input type="text" class="field-input field-readonly" id="ef_${f.key}" value="${esc(row[f.key]??'')}" readonly aria-readonly="true">`;
     grid.appendChild(g);
   });
-
-  const sep = document.createElement('hr');
-  sep.className = 'section-sep';
-  grid.appendChild(sep);
-
-  const names = getNames();
-  const existing = names[String(id)] || {};
-  ['Name|_name|Assign a custom name...|60', 'Note|_note|Optional annotation...|120'].forEach(def => {
-    const [lbl, k, ph, ml] = def.split('|');
-    const g = document.createElement('div');
-    g.className = 'field-group full';
+  const sep = document.createElement('hr'); sep.className = 'section-sep'; grid.appendChild(sep);
+  const names = getNames(); const existing = names[String(id)] || {};
+  ['Name|_name|Assign a custom name...|60','Note|_note|Optional annotation...|120'].forEach(def => {
+    const [lbl,k,ph,ml] = def.split('|');
+    const g = document.createElement('div'); g.className = 'field-group full';
     g.innerHTML = `<label class="field-label" for="ef${k}">DISPLAY ${lbl.toUpperCase()}</label>
-                   <input type="text" class="field-input" id="ef${k}" value="${esc(k === '_name' ? existing.name || '' : existing.note || '')}" placeholder="${ph}" maxlength="${ml}">`;
+                   <input type="text" class="field-input" id="ef${k}" value="${esc(k==='_name'?existing.name||'':existing.note||'')}" placeholder="${ph}" maxlength="${ml}">`;
     grid.appendChild(g);
   });
-
-  const sep2 = document.createElement('hr');
-  sep2.className = 'section-sep';
-  grid.appendChild(sep2);
-
+  const sep2 = document.createElement('hr'); sep2.className = 'section-sep'; grid.appendChild(sep2);
   EDIT_FIELDS.forEach(f => {
-    const g = document.createElement('div');
-    g.className = 'field-group';
+    const g = document.createElement('div'); g.className = 'field-group';
     g.innerHTML = `<label class="field-label" for="ef_${f.key}">${f.label.toUpperCase()}</label>
-                   <input type="text" class="field-input" id="ef_${f.key}" value="${esc(row[f.key] ?? '')}">`;
+                   <input type="text" class="field-input" id="ef_${f.key}" value="${esc(row[f.key]??'')}">`;
     grid.appendChild(g);
   });
-
   document.getElementById('editModalTitle').textContent = `◈ EDIT RECORD #${id}`;
   openModal('editModal');
   setTimeout(() => document.getElementById('ef__name')?.focus() || document.getElementById('ef_public_ip')?.focus(), 50);
 }
-
 async function saveEdit() {
   if (editingId == null) return;
-
   const nameVal = document.getElementById('ef__name')?.value.trim() || '';
   const noteVal = document.getElementById('ef__note')?.value.trim() || '';
   const names = getNames();
-  if (nameVal) {
-    names[String(editingId)] = { name: nameVal, note: noteVal };
-  } else {
-    delete names[String(editingId)];
-  }
+  if (nameVal) { names[String(editingId)] = {name:nameVal, note:noteVal}; } else { delete names[String(editingId)]; }
   saveNames(names);
-
   const patch = {};
-  EDIT_FIELDS.forEach(f => {
-    const el = document.getElementById(`ef_${f.key}`);
-    if (el) patch[f.key] = el.value.trim() || null;
-  });
-
+  EDIT_FIELDS.forEach(f => { const el = document.getElementById(`ef_${f.key}`); if (el) patch[f.key] = el.value.trim() || null; });
   try {
     const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'update', id: parseInt(editingId), fields: patch })
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'update', id:parseInt(editingId), fields:patch})
     });
-
-    if (!res.ok) {
-      let b = null;
-      try { b = await res.json(); } catch {}
-      throw new Error(b?.error || b?.detail || `HTTP ${res.status}`);
-    }
-
-    const idx = allData.findIndex(r => String(r.id) === String(editingId));
-    if (idx >= 0) allData[idx] = { ...allData[idx], ...patch };
-
-    toast(`✓ Record #${editingId} saved`, 't-green');
-    closeModal('editModal');
-  } catch (e) {
-    toast(`⚠ Save failed: ${e.message}`, 't-amber', 4000);
-  }
-
-  applyFilter();
-  updateStats(allData);
+    if (!res.ok) { let b=null; try{b=await res.json();}catch{} throw new Error(b?.error||b?.detail||`HTTP ${res.status}`); }
+    const idx = allData.findIndex(r => String(r.id)===String(editingId));
+    if (idx >= 0) allData[idx] = {...allData[idx], ...patch};
+    toast(`✓ Record #${editingId} saved`, 't-green'); closeModal('editModal');
+  } catch (e) { toast(`⚠ Save failed: ${e.message}`, 't-amber', 4000); }
+  applyFilter(); updateStats(allData);
 }
 
-// ── NAME MODAL ───────────────────────────────────────────────────────────
+// ── NAME MODAL ────────────────────────────────────────────────────────────
 function openNameModal(id) {
-  const names = getNames();
-  const obj = names[String(id)] || {};
-  document.getElementById('nmId').value = id;
+  const names = getNames(); const obj = names[String(id)] || {};
+  document.getElementById('nmId').value   = id;
   document.getElementById('nmName').value = obj.name || '';
   document.getElementById('nmNote').value = obj.note || '';
   document.getElementById('nameModalTitle').textContent = `◈ NAME RECORD #${id}`;
   openModal('nameModal');
   setTimeout(() => document.getElementById('nmName').focus(), 50);
 }
-
 function saveNameModal() {
   const id   = document.getElementById('nmId').value;
   const name = document.getElementById('nmName').value.trim();
   const note = document.getElementById('nmNote').value.trim();
-  if (!name) { toast('Name is required', 't-red'); return; }
-  const names = getNames();
-  names[id] = { name, note };
-  saveNames(names);
-  closeModal('nameModal');
-  renderTable();
-  updateStats(allData);
+  if (!name) { toast('Name is required','t-red'); return; }
+  const names = getNames(); names[id] = {name, note}; saveNames(names);
+  closeModal('nameModal'); renderTable(); updateStats(allData);
   toast(`◈ "${name}" → #${id}`, 't-violet');
 }
-
 function removeNameModal() {
   const id = document.getElementById('nmId').value;
-  const names = getNames();
-  delete names[id];
-  saveNames(names);
-  closeModal('nameModal');
-  renderTable();
-  updateStats(allData);
+  const names = getNames(); delete names[id]; saveNames(names);
+  closeModal('nameModal'); renderTable(); updateStats(allData);
   toast(`Name removed from #${id}`, 't-amber');
 }
 
-// ── EXPORT CSV ───────────────────────────────────────────────────────────
+// ── EXPORT CSV ────────────────────────────────────────────────────────────
 function exportCSV() {
-  if (!filteredData.length) { toast('No data to export', 't-amber'); return; }
+  if (!filteredData.length) { toast('No data to export','t-amber'); return; }
   const visCols = COLUMNS.filter(c => c.vis && !['_act','_name','geolocation','front_photo','battery','screen','connection','permission_states'].includes(c.key));
   const names = getNames();
-  const hdr  = ['name','note', ...visCols.map(c => c.key)].join(',');
+  const hdr  = ['name','note',...visCols.map(c=>c.key)].join(',');
   const rows = filteredData.map(r => {
     const n = names[String(r.id)] || {};
-    return [
-      `"${(n.name || '').replace(/"/g,'""')}"`,
-      `"${(n.note || '').replace(/"/g,'""')}"`,
-      ...visCols.map(c => `"${String(r[c.key] ?? '').replace(/"/g,'""')}"`)
-    ].join(',');
+    return [`"${(n.name||'').replace(/"/g,'""')}"`, `"${(n.note||'').replace(/"/g,'""')}"`,
+            ...visCols.map(c=>`"${String(r[c.key]??'').replace(/"/g,'""')}"`),].join(',');
   });
-  dlFile([hdr, ...rows].join('\n'), `capture_${Date.now()}.csv`, 'text/csv');
+  dlFile([hdr,...rows].join('\n'), `capture_${Date.now()}.csv`, 'text/csv');
   toast(`✓ ${filteredData.length} rows exported`, 't-green');
 }
-
 function dlFile(content, name, mime) {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.href = URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
 }
 
-// ── RENDER TABLE ─────────────────────────────────────────────────────────
+// ── RENDER TABLE ──────────────────────────────────────────────────────────
 function renderTable() {
   const tbody = document.getElementById('tableBody');
-  const start = (currentPage - 1) * pageSize;
-  const page  = filteredData.slice(start, start + pageSize);
-
+  const start = (currentPage-1)*pageSize;
+  const page  = filteredData.slice(start, start+pageSize);
   if (!page.length) {
     const msg = allData.length ? 'NO RECORDS MATCH FILTER' : 'NO DATA LOADED';
     tbody.innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty">${msg}</td></tr>`;
   } else {
     tbody.innerHTML = page.map(r => {
-      const cells = COLUMNS.map((col) =>
-        `<td class="${col.vis ? '' : 'hidden-col'}">${col.render(r)}</td>`
-      ).join('');
+      const cells = COLUMNS.map(col => `<td class="${col.vis?'':'hidden-col'}">${col.render(r)}</td>`).join('');
       return `<tr>${cells}</tr>`;
     }).join('');
   }
-
   document.getElementById('rowCount').textContent = filteredData.length;
   document.getElementById('rowTotal').textContent = allData.length;
   renderPagination();
@@ -1193,27 +1747,18 @@ function renderTable() {
 
 // ── MODALS ────────────────────────────────────────────────────────────────
 function openModal(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  const first = el.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const el = document.getElementById(id); if (!el) return;
+  el.classList.add('open'); document.body.style.overflow = 'hidden';
+  const first = el.querySelector('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
   if (first) first.focus();
 }
-
 function closeModal(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.remove('open');
-  document.body.style.overflow = '';
+  const el = document.getElementById(id); if (!el) return;
+  el.classList.remove('open'); document.body.style.overflow = '';
 }
-
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) closeModal(overlay.id);
-  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
 });
-
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
@@ -1223,24 +1768,17 @@ document.addEventListener('keydown', e => {
 
 // ── LIGHTBOX ──────────────────────────────────────────────────────────────
 function openLightboxById(id) {
-  const row = byId(id);
-  if (!row || !row.front_photo) return;
+  const row = byId(id); if (!row || !row.front_photo) return;
   openLightbox(row.front_photo, `FRONT — #${id}`);
 }
-
 function openLightbox(src, label) {
   const lb  = document.getElementById('lightbox');
   const img = document.getElementById('lightboxImg');
   const lbl = document.getElementById('lightbox-label');
-  // Re-validate before setting src — the column render already checks, but re-check here
-  // since openLightbox can be called from anywhere
   if (!src || !/^data:image\//i.test(src)) return;
-  img.src = src;
-  if (lbl) lbl.textContent = label || '';
-  lb.classList.add('open');
-  lb.focus();
+  img.src = src; if (lbl) lbl.textContent = label || '';
+  lb.classList.add('open'); lb.focus();
 }
-
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   document.getElementById('lightboxImg').src = '';
@@ -1248,19 +1786,15 @@ function closeLightbox() {
 
 // ── QUERY PANEL ───────────────────────────────────────────────────────────
 function insertSnippet(sql) {
-  const ed = document.getElementById('sqlEditor');
-  ed.value = sql;
-  ed.focus();
-  if (sql.endsWith(' ;')) ed.setSelectionRange(sql.length - 1, sql.length - 1);
+  const ed = document.getElementById('sqlEditor'); ed.value = sql; ed.focus();
+  if (sql.endsWith(' ;')) ed.setSelectionRange(sql.length-1, sql.length-1);
 }
-
 function clearQuery() {
   document.getElementById('sqlEditor').value = '';
   document.getElementById('sqlResultWrap').style.display = 'none';
   document.getElementById('queryStatus').textContent = '';
   document.getElementById('sqlEditor').focus();
 }
-
 function toggleQueryHistory() {
   const panel = document.getElementById('histPanel');
   const btn   = document.getElementById('histBtn');
@@ -1269,124 +1803,87 @@ function toggleQueryHistory() {
   btn.setAttribute('aria-expanded', String(!open));
   if (!open) renderQueryHistory();
 }
-
 function renderQueryHistory() {
-  const list = document.getElementById('histList');
-  list.innerHTML = '';
+  const list = document.getElementById('histList'); list.innerHTML = '';
   if (!queryHistory.length) {
     list.innerHTML = '<div style="padding:8px 10px;font-family:\'Share Tech Mono\',monospace;font-size:.68rem;color:var(--text-dim)">// no history</div>';
     return;
   }
   [...queryHistory].reverse().forEach(q => {
-    const btn = document.createElement('button');
-    btn.className = 'hist-item';
-    btn.textContent = q;
-    btn.onclick = () => {
-      document.getElementById('sqlEditor').value = q;
-      toggleQueryHistory();
-    };
+    const btn = document.createElement('button'); btn.className = 'hist-item'; btn.textContent = q;
+    btn.onclick = () => { document.getElementById('sqlEditor').value = q; toggleQueryHistory(); };
     list.appendChild(btn);
   });
 }
-
 async function runQuery() {
   const sql = document.getElementById('sqlEditor').value.trim();
-  if (!sql) { toast('Enter a SQL query first', 't-amber'); return; }
-
+  if (!sql) { toast('Enter a SQL query first','t-amber'); return; }
   const statusEl   = document.getElementById('queryStatus');
   const resultWrap = document.getElementById('sqlResultWrap');
   const labelEl    = document.getElementById('sqlResultLabel');
   const contentEl  = document.getElementById('sqlResultContent');
-
-  statusEl.textContent = 'EXECUTING…';
-  resultWrap.style.display = 'none';
-
+  statusEl.textContent = 'EXECUTING…'; resultWrap.style.display = 'none';
   if (sql.length <= 2000) {
-    queryHistory = queryHistory.filter(q => q !== sql);
-    queryHistory.push(sql);
+    queryHistory = queryHistory.filter(q => q !== sql); queryHistory.push(sql);
     if (queryHistory.length > 20) queryHistory.shift();
     try { localStorage.setItem('qhist', JSON.stringify(queryHistory)); } catch(e) {}
   }
-
   try {
     const startTime = Date.now();
     const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'query', sql })
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'query', sql})
     });
-
-    const body = await res.json().catch(() => ({}));
+    const body = await res.json().catch(()=>({}));
     if (!res.ok || body.error) throw new Error(body.error || `HTTP ${res.status}`);
-
-    const elapsed = Date.now() - startTime;
-    statusEl.textContent = `DONE — ${elapsed}ms`;
-    resultWrap.style.display = 'block';
-
+    const elapsed = Date.now()-startTime;
+    statusEl.textContent = `DONE — ${elapsed}ms`; resultWrap.style.display = 'block';
     if (Array.isArray(body?.results) || Array.isArray(body)) {
       const rows = Array.isArray(body) ? body : body.results;
       if (!rows || rows.length === 0) {
         labelEl.textContent = 'RESULTS — 0 rows';
         contentEl.innerHTML = '<div class="sql-result-empty">// empty result set</div>';
       } else {
-        labelEl.textContent = `RESULTS — ${rows.length} row${rows.length !== 1 ? 's' : ''}`;
+        labelEl.textContent = `RESULTS — ${rows.length} row${rows.length!==1?'s':''}`;
         const cols = Object.keys(rows[0]);
-        contentEl.innerHTML = `
-          <div class="sql-result-table-wrap">
-            <table class="sql-result-table">
-              <thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
-              <tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${esc(String(r[c] ?? ''))}</td>`).join('')}</tr>`).join('')}</tbody>
-            </table>
-          </div>`;
+        contentEl.innerHTML = `<div class="sql-result-table-wrap"><table class="sql-result-table">
+          <thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(String(r[c]??''))}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table></div>`;
       }
     } else {
       const changes = body?.changes ?? body?.rowsAffected ?? 0;
       labelEl.textContent = 'RESULT';
       contentEl.innerHTML = `<div class="sql-affected">✓ Query executed — ${changes} row(s) affected</div>`;
     }
-  } catch (e) {
-    resultWrap.style.display = 'block';
-    labelEl.textContent = 'ERROR';
+  } catch(e) {
+    resultWrap.style.display = 'block'; labelEl.textContent = 'ERROR';
     contentEl.innerHTML = `<div class="sql-result-error">⚠ ${esc(e.message)}</div>`;
     statusEl.textContent = 'FAILED';
   }
 }
-
 document.getElementById('sqlEditor').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-    e.preventDefault();
-    runQuery();
-  }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runQuery(); }
 });
 
-// ── LOGOUT ───────────────────────────────────────────────────────────────
+// ── LOGOUT ────────────────────────────────────────────────────────────────
 document.getElementById('logoutBtn').addEventListener('click', async () => {
-  try {
-    await fetch(`${BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
-  } catch (e) { /* ignore network errors on logout */ }
-  allData = [];
-  filteredData = [];
-  renderTable();
-  updateStats([]);
-  clearInterval(countdownTimer);
-  toast('Session terminated', 't-amber');
+  try { await fetch(`${BASE_URL}/auth/logout`, {method:'POST', credentials:'include'}); } catch(e) {}
+  allData = []; filteredData = []; renderTable(); updateStats([]);
+  clearInterval(countdownTimer); toast('Session terminated','t-amber');
   setTimeout(() => { window.location.replace('index.html'); }, 600);
 });
 
-// ── SETTINGS / CHANGE CREDENTIALS ────────────────────────────────────────
+// ── SETTINGS ─────────────────────────────────────────────────────────────
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  ['credCurrentPass','credNewUser','credNewPass','credNewPassConfirm'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
+  ['credCurrentPass','credNewUser','credNewPass','credNewPassConfirm'].forEach(id => { document.getElementById(id).value = ''; });
   const msg = document.getElementById('credMsg');
-  msg.style.display = 'none';
-  msg.className = '';
+  msg.style.display = 'none'; msg.className = '';
   document.getElementById('credSaveBtn').disabled = false;
   openModal('settingsModal');
   setTimeout(() => document.getElementById('credCurrentPass').focus(), 50);
 });
-
 async function saveCredentials() {
   const currentPass    = document.getElementById('credCurrentPass').value;
   const newUser        = document.getElementById('credNewUser').value.trim();
@@ -1394,94 +1891,90 @@ async function saveCredentials() {
   const newPassConfirm = document.getElementById('credNewPassConfirm').value;
   const msg            = document.getElementById('credMsg');
   const btn            = document.getElementById('credSaveBtn');
-
-  const showMsg = (text, type) => {
-    msg.textContent = text;
-    msg.className = type;
-    msg.style.display = 'block';
-  };
-
-  if (!currentPass) { showMsg('⚠ Current password is required.', 'err'); return; }
-  if (!newUser && !newPass) { showMsg('⚠ Enter a new username, new password, or both.', 'err'); return; }
-  if (newPass && newPass.length < 8) { showMsg('⚠ New password must be at least 8 characters.', 'err'); return; }
-  if (newPass && newPass.length > 128) { showMsg('⚠ New password too long (max 128 chars).', 'err'); return; }
-  if (newUser && newUser.length > 64) { showMsg('⚠ New username too long (max 64 chars).', 'err'); return; }
-  if (newPass && newPass !== newPassConfirm) { showMsg('⚠ New passwords do not match.', 'err'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'APPLYING…';
-  showMsg('', '');
-  msg.style.display = 'none';
-
+  const showMsg = (text, type) => { msg.textContent = text; msg.className = type; msg.style.display = 'block'; };
+  if (!currentPass) { showMsg('⚠ Current password is required.','err'); return; }
+  if (!newUser && !newPass) { showMsg('⚠ Enter a new username, new password, or both.','err'); return; }
+  if (newPass && newPass.length < 8) { showMsg('⚠ New password must be at least 8 characters.','err'); return; }
+  if (newPass && newPass.length > 128) { showMsg('⚠ New password too long (max 128 chars).','err'); return; }
+  if (newUser && newUser.length > 64) { showMsg('⚠ New username too long (max 64 chars).','err'); return; }
+  if (newPass && newPass !== newPassConfirm) { showMsg('⚠ New passwords do not match.','err'); return; }
+  btn.disabled = true; btn.textContent = 'APPLYING…';
+  showMsg('',''); msg.style.display = 'none';
   try {
-    const payload = { current_password: currentPass };
+    const payload = {current_password:currentPass};
     if (newUser) payload.new_username = newUser;
     if (newPass) payload.new_password = newPass;
-
     const res  = await fetch(`${BASE_URL}/auth/change-credentials`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
-    const data = await res.json().catch(() => ({}));
-
+    const data = await res.json().catch(()=>({}));
     if (res.ok && data.success) {
-      showMsg('✓ Credentials updated. You will need to log in again on other devices.', 'ok');
+      showMsg('✓ Credentials updated. You will need to log in again on other devices.','ok');
       document.getElementById('credCurrentPass').value = '';
       document.getElementById('credNewPass').value = '';
       document.getElementById('credNewPassConfirm').value = '';
-      toast('✓ Credentials updated', 't-green');
+      toast('✓ Credentials updated','t-green');
     } else {
-      // Clear password fields on failure too — don't leave them in the DOM
       document.getElementById('credCurrentPass').value = '';
       document.getElementById('credNewPass').value = '';
       document.getElementById('credNewPassConfirm').value = '';
-      showMsg(`⚠ ${data.error || 'Update failed (' + res.status + ')'}`, 'err');
+      showMsg(`⚠ ${data.error||'Update failed ('+res.status+')'}`, 'err');
     }
-  } catch (e) {
+  } catch(e) {
     document.getElementById('credCurrentPass').value = '';
     document.getElementById('credNewPass').value = '';
     document.getElementById('credNewPassConfirm').value = '';
     showMsg(`⚠ Network error — ${e.message}`, 'err');
   } finally {
-    btn.disabled = false;
-    btn.textContent = '◈ APPLY CHANGES';
+    btn.disabled = false; btn.textContent = '◈ APPLY CHANGES';
   }
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────
 buildHeader();
 buildColDropdown();
 
-// Check session first; redirect to login if not authenticated
 (async () => {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), 6000);
   try {
-    const res = await fetch(`${BASE_URL}/auth/me`, { credentials: 'include', signal: ctrl.signal });
+    const res = await fetch(`${BASE_URL}/auth/me`, {credentials:'include', signal:ctrl.signal});
     clearTimeout(tid);
-    if (res.ok) {
-      const data = await res.json().catch(() => ({}));
-      if (data.authenticated === true) { loadData(); return; }
-    }
-  } catch (e) { clearTimeout(tid); }
+    if (res.ok) { const data = await res.json().catch(()=>({})); if (data.authenticated === true) { loadData(); return; } }
+  } catch(e) { clearTimeout(tid); }
   window.location.replace('index.html');
 })();
 
-// Auto-refresh only when tab is visible
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 6000);
-    fetch(`${BASE_URL}/auth/me`, { credentials: 'include', signal: ctrl.signal })
+    const ctrl = new AbortController(); const tid = setTimeout(() => ctrl.abort(), 6000);
+    fetch(`${BASE_URL}/auth/me`, {credentials:'include', signal:ctrl.signal})
       .then(r => { clearTimeout(tid); return r.ok ? r.json() : null; })
       .then(d => { if (d?.authenticated) { loadData(); startCountdown(); } else { window.location.replace('index.html'); } })
       .catch(() => { clearTimeout(tid); });
-  } else {
-    clearInterval(countdownTimer);
-  }
+  } else { clearInterval(countdownTimer); }
 });
+
+// ── BACKGROUND PARTICLES ──────────────────────────────────────────────────
+(function spawnParticles() {
+  const container = document.getElementById('bg-particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'pt';
+    const sz = Math.random() * 2 + 1;
+    p.style.cssText = `
+      width:${sz}px; height:${sz}px;
+      left:${Math.random()*100}%;
+      animation-duration:${7+Math.random()*12}s;
+      animation-delay:${Math.random()*10}s;
+      --dx:${(Math.random()-.5)*100}px;
+      background:${i%5===0?'var(--green)':i%7===0?'var(--amber)':'var(--cyan)'};
+    `;
+    container.appendChild(p);
+  }
+})();
 </script>
 </body>
 </html>
