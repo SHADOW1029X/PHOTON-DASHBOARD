@@ -912,7 +912,7 @@ async function loadData() {
 
     if (res.status === 401 || res.status === 403) {
       // Session expired — redirect to login
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -1366,7 +1366,7 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   updateStats([]);
   clearInterval(countdownTimer);
   toast('Session terminated', 't-amber');
-  setTimeout(() => { window.location.href = 'login.html'; }, 600);
+  setTimeout(() => { window.location.href = 'index.html'; }, 600);
 });
 
 // ── SETTINGS / CHANGE CREDENTIALS ────────────────────────────────────────
@@ -1449,7 +1449,7 @@ buildColDropdown();
       if (data.authenticated) { loadData(); return; }
     }
   } catch (e) { /* fall through */ }
-  window.location.href = 'login.html';
+  window.location.href = 'index.html';
 })();
 
 // Auto-refresh only when tab is visible
@@ -1457,7 +1457,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     fetch(`${BASE_URL}/auth/me`, { credentials: 'include' })
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.authenticated) { loadData(); startCountdown(); } else { window.location.href = 'login.html'; } })
+      .then(d => { if (d?.authenticated) { loadData(); startCountdown(); } else { window.location.href = 'index.html'; } })
       .catch(() => {});
   } else {
     clearInterval(countdownTimer);
