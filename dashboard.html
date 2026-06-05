@@ -10,6 +10,7 @@
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="no-referrer">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     /* ══════════════════════════════════════════════════════════════
@@ -898,10 +899,136 @@
       .toolbar       { gap: 6px; }
       .refresh-countdown { display: none; }
       #bg-grid       { display: none; }
+      .storage-bar-row { grid-template-columns: 80px 1fr 80px; gap: 8px; }
+      .storage-bar-label { font-size: .58rem; }
+      .export-dropdown { right: 0; left: auto; }
     }
-    @media (max-width: 440px) {
-      .layout { padding: 0 12px 60px; }
+    /* ══════════════════════════════════════════════════════════════
+       STORAGE WIDGET
+    ══════════════════════════════════════════════════════════════ */
+    .storage-card {
+      background: linear-gradient(135deg, var(--panel2) 0%, rgba(4,13,24,.8) 100%);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 16px 20px 18px;
+      position: relative; overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+      margin-bottom: 22px;
     }
+    .storage-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--violet-dim), transparent);
+      opacity: .8;
+    }
+    .storage-card::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 14px; height: 14px;
+      background: var(--violet-dim);
+      clip-path: polygon(0 0, 100% 100%, 100% 0);
+      opacity: .5;
+    }
+    .storage-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+    }
+    .storage-title {
+      font-family: 'Orbitron', monospace; font-size: .62rem; font-weight: 700;
+      color: var(--violet); letter-spacing: .2em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .storage-title::before { content: '◈'; font-size: .7rem; }
+    .storage-meta {
+      font-family: 'Share Tech Mono', monospace; font-size: .65rem;
+      color: var(--text-dim); letter-spacing: .08em;
+    }
+    .storage-meta span { color: var(--violet); }
+    .storage-bars { display: flex; flex-direction: column; gap: 10px; }
+    .storage-bar-row {
+      display: grid; grid-template-columns: 110px 1fr 90px;
+      align-items: center; gap: 12px;
+    }
+    .storage-bar-label {
+      font-family: 'Share Tech Mono', monospace; font-size: .63rem;
+      color: var(--text-mid); letter-spacing: .1em; text-align: right;
+      white-space: nowrap;
+    }
+    .storage-track {
+      height: 8px; background: rgba(13,58,82,.7);
+      border-radius: 4px; overflow: hidden; position: relative;
+      border: 1px solid rgba(13,58,82,.9);
+    }
+    .storage-fill {
+      height: 100%; border-radius: 4px;
+      transition: width .8s cubic-bezier(.4,0,.2,1);
+      position: relative;
+    }
+    .storage-fill::after {
+      content: '';
+      position: absolute; top: 0; right: 0; bottom: 0; width: 3px;
+      background: rgba(255,255,255,.35); border-radius: 0 4px 4px 0;
+    }
+    .sfill-used   { background: linear-gradient(90deg, var(--violet-dim), var(--violet)); box-shadow: 0 0 8px rgba(191,127,255,.35); }
+    .sfill-free   { background: linear-gradient(90deg, var(--green-dim), var(--green));  box-shadow: 0 0 8px rgba(0,255,157,.3); }
+    .sfill-photos { background: linear-gradient(90deg, var(--cyan-deep), var(--cyan));   box-shadow: 0 0 8px rgba(0,229,255,.3); }
+    .sfill-warn   { background: linear-gradient(90deg, #7a5500, var(--amber)); box-shadow: 0 0 8px rgba(255,179,0,.35); }
+    .sfill-crit   { background: linear-gradient(90deg, var(--red-dim), var(--red)); box-shadow: 0 0 8px rgba(255,59,92,.4);
+                    animation: sfillPulse 1.2s ease-in-out infinite; }
+    @keyframes sfillPulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+    .storage-bar-val {
+      font-family: 'Share Tech Mono', monospace; font-size: .65rem;
+      letter-spacing: .05em; white-space: nowrap;
+    }
+    .sv-violet { color: var(--violet); }
+    .sv-green  { color: var(--green); }
+    .sv-cyan   { color: var(--cyan); }
+    .sv-amber  { color: var(--amber); }
+    .sv-red    { color: var(--red); }
+    .storage-divider {
+      margin: 10px 0 4px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-hi) 30%, var(--border-hi) 70%, transparent);
+      opacity: .4;
+    }
+    .storage-estimate-note {
+      font-family: 'Share Tech Mono', monospace; font-size: .58rem;
+      color: var(--text-dim); margin-top: 10px; letter-spacing: .08em;
+      padding-left: 2px;
+    }
+    .storage-estimate-note::before { content: '// '; color: var(--cyan-dim); }
+
+    /* ══════════════════════════════════════════════════════════════
+       EXPORT DROPDOWN
+    ══════════════════════════════════════════════════════════════ */
+    .export-wrap {
+      position: relative; display: inline-block;
+    }
+    .export-dropdown {
+      display: none; position: absolute; top: calc(100% + 5px); right: 0;
+      background: var(--panel2); border: 1px solid var(--green-dim);
+      border-radius: 3px; min-width: 160px; z-index: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,.8), var(--glow-g);
+      overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+      animation: dropIn .15s ease;
+    }
+    @keyframes dropIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+    .export-dropdown.open { display: block; }
+    .export-option {
+      display: block; width: 100%; text-align: left;
+      padding: 9px 14px;
+      font-family: 'Orbitron', monospace; font-size: .56rem; font-weight: 700;
+      letter-spacing: .12em; cursor: pointer;
+      background: transparent; border: none;
+      color: var(--text-mid);
+      border-bottom: 1px solid rgba(13,58,82,.4);
+      transition: background .14s, color .14s;
+    }
+    .export-option:last-child { border-bottom: none; }
+    .export-option:hover { background: rgba(0,255,157,.08); color: var(--green); }
+    .export-option .exp-icon { margin-right: 7px; font-size: .75rem; }
+
   </style>
 </head>
 <body>
@@ -981,6 +1108,38 @@
         </div>
       </div>
 
+      <!-- STORAGE WIDGET -->
+      <div class="storage-card" role="region" aria-label="Storage usage">
+        <div class="storage-header">
+          <div class="storage-title">STORAGE USAGE</div>
+          <div class="storage-meta" id="storageMetaTotal">ESTIMATED — <span id="storageMetaVal">—</span></div>
+        </div>
+        <div class="storage-bars">
+          <div class="storage-bar-row">
+            <div class="storage-bar-label">USED</div>
+            <div class="storage-track"><div class="storage-fill sfill-used" id="sfUsed" style="width:0%"></div></div>
+            <div class="storage-bar-val sv-violet" id="svUsed">—</div>
+          </div>
+          <div class="storage-bar-row">
+            <div class="storage-bar-label">FREE</div>
+            <div class="storage-track"><div class="storage-fill sfill-free" id="sfFree" style="width:100%"></div></div>
+            <div class="storage-bar-val sv-green" id="svFree">—</div>
+          </div>
+          <div class="storage-divider"></div>
+          <div class="storage-bar-row">
+            <div class="storage-bar-label">PHOTO DATA</div>
+            <div class="storage-track"><div class="storage-fill sfill-photos" id="sfPhotos" style="width:0%"></div></div>
+            <div class="storage-bar-val sv-cyan" id="svPhotos">—</div>
+          </div>
+          <div class="storage-bar-row">
+            <div class="storage-bar-label">META DATA</div>
+            <div class="storage-track"><div class="storage-fill sfill-free" id="sfMeta" style="width:0%"></div></div>
+            <div class="storage-bar-val sv-green" id="svMeta">—</div>
+          </div>
+        </div>
+        <div class="storage-estimate-note" id="storageNote">Estimates based on loaded records. Actual DB size may differ.</div>
+      </div>
+
       <div id="error-bar" role="alert"></div>
 
       <!-- TOOLBAR -->
@@ -1000,7 +1159,14 @@
             <div class="col-dropdown-title">TOGGLE COLUMNS</div>
           </div>
         </div>
-        <button class="btn btn-green" onclick="exportCSV()" title="Export filtered data as CSV">⬇ EXPORT</button>
+        <div class="export-wrap" id="exportWrap">
+          <button class="btn btn-green" onclick="toggleExportDropdown()" id="exportBtn" title="Export filtered data" aria-haspopup="true" aria-expanded="false">⬇ EXPORT ▾</button>
+          <div class="export-dropdown" id="exportDropdown" role="menu">
+            <button class="export-option" role="menuitem" onclick="exportCSV()"><span class="exp-icon">📋</span>CSV FILE</button>
+            <button class="export-option" role="menuitem" onclick="exportTXT()"><span class="exp-icon">📄</span>TEXT FILE</button>
+            <button class="export-option" role="menuitem" onclick="exportPDF()"><span class="exp-icon">📑</span>PDF FILE</button>
+          </div>
+        </div>
       </div>
 
       <!-- TABLE -->
@@ -1499,6 +1665,7 @@ function updateStats(data) {
   document.getElementById('statIPs').textContent     = ips.size || '—';
   const bats = data.map(r => battLevel(r)).filter(v => v != null);
   document.getElementById('statBattery').textContent = bats.length ? Math.round(bats.reduce((a,b)=>a+b,0)/bats.length*100)+'%' : '—';
+  updateStorage(data);
 }
 
 // ── FILTER ────────────────────────────────────────────────────────────────
@@ -1722,6 +1889,8 @@ function removeNameModal() {
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────
 function exportCSV() {
+  document.getElementById('exportDropdown').classList.remove('open');
+  document.getElementById('exportBtn').setAttribute('aria-expanded','false');
   if (!filteredData.length) { toast('No data to export','t-amber'); return; }
   const visCols = COLUMNS.filter(c => c.vis && !['_act','_name','geolocation','front_photo','battery','screen','connection','permission_states'].includes(c.key));
   const names = getNames();
@@ -1738,6 +1907,152 @@ function dlFile(content, name, mime) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([content],{type:mime}));
   a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ── EXPORT DROPDOWN ───────────────────────────────────────────────────────
+function toggleExportDropdown() {
+  const dd  = document.getElementById('exportDropdown');
+  const btn = document.getElementById('exportBtn');
+  const open = dd.classList.toggle('open');
+  btn.setAttribute('aria-expanded', String(open));
+}
+// Close export dropdown when clicking outside
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('exportWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('exportDropdown').classList.remove('open');
+    document.getElementById('exportBtn').setAttribute('aria-expanded','false');
+  }
+});
+
+// ── EXPORT TXT ────────────────────────────────────────────────────────────
+function exportTXT() {
+  document.getElementById('exportDropdown').classList.remove('open');
+  document.getElementById('exportBtn').setAttribute('aria-expanded','false');
+  if (!filteredData.length) { toast('No data to export','t-amber'); return; }
+  const visCols = COLUMNS.filter(c => c.vis && !['_act','_name','geolocation','front_photo','battery','screen','connection','permission_states'].includes(c.key));
+  const names = getNames();
+  const LINE = '─'.repeat(72);
+  const SEP  = '═'.repeat(72);
+  const lines = [];
+  lines.push(SEP);
+  lines.push('  CAPTURES // NODE TELEMETRY EXPORT');
+  lines.push(`  Generated : ${new Date().toLocaleString()}`);
+  lines.push(`  Records   : ${filteredData.length}`);
+  lines.push(SEP);
+  lines.push('');
+  filteredData.forEach((r, i) => {
+    const n = names[String(r.id)] || {};
+    lines.push(`  RECORD ${i+1} of ${filteredData.length}  [ID: ${r.id}]`);
+    if (n.name) lines.push(`  NAME   : ${n.name}${n.note ? '  //  '+n.note : ''}`);
+    visCols.forEach(c => {
+      const val = String(r[c.key] ?? '');
+      if (val) lines.push(`  ${c.key.toUpperCase().padEnd(22,' ')}: ${val}`);
+    });
+    lines.push(i < filteredData.length-1 ? '  '+LINE : '');
+  });
+  lines.push(SEP);
+  dlFile(lines.join('\n'), `captures_${Date.now()}.txt`, 'text/plain;charset=utf-8');
+  toast(`✓ ${filteredData.length} rows → TXT`, 't-green');
+}
+
+// ── EXPORT PDF ────────────────────────────────────────────────────────────
+function exportPDF() {
+  document.getElementById('exportDropdown').classList.remove('open');
+  document.getElementById('exportBtn').setAttribute('aria-expanded','false');
+  if (!filteredData.length) { toast('No data to export','t-amber'); return; }
+  const visCols = COLUMNS.filter(c => c.vis && !['_act','_name','geolocation','front_photo','battery','screen','connection','permission_states'].includes(c.key));
+  const names  = getNames();
+  const esc2 = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now  = new Date().toLocaleString();
+  const rows = filteredData.map((r,i) => {
+    const n = names[String(r.id)] || {};
+    const cells = visCols.map(c => `<td>${esc2(r[c.key]??'')}</td>`).join('');
+    const nameCell = n.name ? `<span style="color:#bf7fff;font-weight:600">${esc2(n.name)}</span>${n.note?`<br><span style="color:#6a9ab8;font-size:9px">${esc2(n.note)}</span>`:''}` : '<span style="color:#3d6478">—</span>';
+    return `<tr class="${i%2===0?'even':'odd'}"><td>${r.id}</td><td>${nameCell}</td>${cells}</tr>`;
+  }).join('');
+  const headers = ['ID','NAME',...visCols.map(c=>c.key.toUpperCase().replace(/_/g,' '))].map(h=>`<th>${h}</th>`).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Captures Export ${now}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Courier New',monospace;font-size:10px;background:#fff;color:#111;padding:20px}
+  h1{font-size:15px;letter-spacing:3px;color:#003d4d;margin-bottom:4px}
+  .meta{font-size:9px;color:#666;margin-bottom:16px;border-bottom:2px solid #003d4d;padding-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:8.5px}
+  th{background:#020810;color:#00e5ff;padding:6px 8px;text-align:left;letter-spacing:1px;border:1px solid #0d3a52;white-space:nowrap}
+  td{padding:5px 8px;border:1px solid #e0e0e0;vertical-align:top;word-break:break-all;max-width:180px}
+  tr.even td{background:#f7fafc} tr.odd td{background:#fff}
+  tr:hover td{background:#e8f4f8}
+  @media print{body{padding:10px} @page{margin:15mm;size:A4 landscape}}
+</style></head><body>
+<h1>◈ CAPTURES // NODE TELEMETRY</h1>
+<div class="meta">EXPORT DATE: ${esc2(now)} &nbsp;|&nbsp; RECORDS: ${filteredData.length} &nbsp;|&nbsp; SOURCE: NODE TELEMETRY DASHBOARD</div>
+<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>
+</body></html>`;
+  const w = window.open('','_blank','width=1200,height=800');
+  if (!w) { toast('⚠ Popup blocked — allow popups and retry','t-amber',4000); return; }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => { w.print(); }, 400);
+  toast(`✓ ${filteredData.length} rows → PDF (print dialog)`, 't-green');
+}
+
+// ── STORAGE WIDGET ────────────────────────────────────────────────────────
+const STORAGE_QUOTA_BYTES = 500 * 1024 * 1024; // 500 MB estimated quota
+
+function fmtBytes(b) {
+  if (b < 1024)       return b + ' B';
+  if (b < 1048576)    return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(2) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function updateStorage(data) {
+  // Estimate photo data (base64 strings)
+  let photoBytes = 0;
+  data.forEach(r => { if (r.front_photo) photoBytes += Math.round(r.front_photo.length * 0.75); });
+
+  // Estimate metadata (all other fields as JSON)
+  let metaBytes = 0;
+  data.forEach(r => {
+    const clone = {...r}; delete clone.front_photo;
+    metaBytes += new TextEncoder().encode(JSON.stringify(clone)).length;
+  });
+
+  const usedBytes  = photoBytes + metaBytes;
+  const freeBytes  = Math.max(0, STORAGE_QUOTA_BYTES - usedBytes);
+  const usedPct    = Math.min(100, (usedBytes / STORAGE_QUOTA_BYTES) * 100);
+  const freePct    = 100 - usedPct;
+  const photoPct   = Math.min(100, (photoBytes / STORAGE_QUOTA_BYTES) * 100);
+  const metaPct    = Math.min(100, (metaBytes  / STORAGE_QUOTA_BYTES) * 100);
+
+  // Choose fill class by usage level
+  const usedClass = usedPct >= 90 ? 'sfill-crit' : usedPct >= 70 ? 'sfill-warn' : 'sfill-used';
+  const usedValClass = usedPct >= 90 ? 'sv-red' : usedPct >= 70 ? 'sv-amber' : 'sv-violet';
+
+  document.getElementById('sfUsed').style.width   = usedPct.toFixed(1) + '%';
+  document.getElementById('sfFree').style.width   = freePct.toFixed(1) + '%';
+  document.getElementById('sfPhotos').style.width = photoPct.toFixed(1) + '%';
+  document.getElementById('sfMeta').style.width   = metaPct.toFixed(1) + '%';
+
+  // Swap fill colour classes
+  const usedEl = document.getElementById('sfUsed');
+  usedEl.className = 'storage-fill ' + usedClass;
+  const usedValEl = document.getElementById('svUsed');
+  usedValEl.className = 'storage-bar-val ' + usedValClass;
+
+  document.getElementById('svUsed').textContent   = `${fmtBytes(usedBytes)} (${usedPct.toFixed(1)}%)`;
+  document.getElementById('svFree').textContent   = `${fmtBytes(freeBytes)} (${freePct.toFixed(1)}%)`;
+  document.getElementById('svPhotos').textContent = fmtBytes(photoBytes);
+  document.getElementById('svMeta').textContent   = fmtBytes(metaBytes);
+  document.getElementById('storageMetaVal').textContent = `${fmtBytes(STORAGE_QUOTA_BYTES)} QUOTA`;
+
+  const note = data.length === 0
+    ? 'No records loaded yet.'
+    : `Estimates based on ${data.length} loaded record${data.length!==1?'s':''}. Actual DB size may differ.`;
+  document.getElementById('storageNote').textContent = note;
 }
 
 // ── RENDER TABLE ──────────────────────────────────────────────────────────
