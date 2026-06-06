@@ -1,1127 +1,940 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>CAPTURES // LOGIN</title>
-  <meta name="description" content="Cyber Dashboard — authentication.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://snowy-fog-b0d1.23amtics322.workers.dev; frame-ancestors 'none'; base-uri 'none'; form-action 'none';">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Referrer-Policy" content="no-referrer">
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
-  <link rel="icon" type="image/png" href="favicon.png">
-  <!-- fallback favicon embedded so it shows even when served from filesystem -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23020810'/%3E%3Cpolygon points='16,2 30,9 30,23 16,30 2,23 2,9' fill='none' stroke='%2300e5ff' stroke-width='1.5'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-family='monospace' font-size='13' font-weight='bold' fill='%2300e5ff'%3E◈%3C/text%3E%3C/svg%3E">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* ── CSS VARIABLES ───────────────────────────────────────────────── */
-    :root {
-      --bg:         #020810;
-      --bg2:        #040d18;
-      --panel:      #07111e;
-      --panel2:     #0a1828;
-      --border:     #0d3a52;
-      --border-hi:  #1a6a8a;
-      --cyan:       #00e5ff;
-      --cyan-dim:   #007a99;
-      --cyan-deep:  #003d4d;
-      --green:      #00ff9d;
-      --green-dim:  #006644;
-      --red:        #ff3b5c;
-      --red-dim:    #7a1a2a;
-      --amber:      #ffb300;
-      --text:       #b0d4e8;
-      --text-dim:   #3d6478;
-      --text-mid:   #6a9ab8;
-      --glow-c:     0 0 8px #00e5ffaa, 0 0 30px #00e5ff44, 0 0 60px #00e5ff11;
-      --glow-c-sm:  0 0 6px #00e5ff88, 0 0 16px #00e5ff33;
-      --glow-g:     0 0 8px #00ff9daa, 0 0 30px #00ff9d44;
-      --glow-r:     0 0 8px #ff3b5caa, 0 0 30px #ff3b5c44;
-      /* Dynamic scaling — overridden by JS */
-      --scale:      1;
-      --card-w:     420px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CAPTURES // TESSERACT NODE</title>
+    <meta name="description" content="Capture Node Telemetry Dashboard — authentication.">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://snowy-fog-b0d1.23amtics322.workers.dev; frame-ancestors 'none'; base-uri 'none'; form-action 'none';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="no-referrer">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23020810'/%3E%3Cpolygon points='16,2 30,9 30,23 16,30 2,23 2,9' fill='none' stroke='%2300e5ff' stroke-width='1.5'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-family='monospace' font-size='13' font-weight='bold' fill='%2300e5ff'%3E◈%3C/text%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
 
-    html {
-      height: 100%;
-      scrollbar-width: thin;
-      scrollbar-color: var(--cyan-dim) var(--bg2);
-    }
+    <style>
+        /* ── RESET & BASE ──────────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      perspective: 1200px;
-    }
+        html {
+            height: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: var(--cyan-dim) var(--bg2);
+        }
 
-    /* ── SCANLINES ─────────────────────────────────────────────────────── */
-    #scanlines {
-      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 3px,
-        rgba(0,229,255,.008) 3px, rgba(0,229,255,.008) 4px
-      );
-      animation: scanShift 8s linear infinite;
-    }
-    @keyframes scanShift {
-      0%   { background-position: 0 0; }
-      100% { background-position: 0 400px; }
-    }
+        :root {
+            --bg:         #020810;
+            --bg2:        #040d18;
+            --panel:      #07111e;
+            --panel2:     #0a1828;
+            --border:     #0d3a52;
+            --border-hi:  #1a6a8a;
+            --cyan:       #00e5ff;
+            --cyan-dim:   #007a99;
+            --cyan-deep:  #003d4d;
+            --green:      #00ff9d;
+            --green-dim:  #006644;
+            --red:        #ff3b5c;
+            --red-dim:    #7a1a2a;
+            --amber:      #ffb300;
+            --text:       #b0d4e8;
+            --text-dim:   #3d6478;
+            --text-mid:   #6a9ab8;
+            --glow-c:     0 0 8px #00e5ffaa, 0 0 30px #00e5ff44, 0 0 60px #00e5ff11;
+            --glow-c-sm:  0 0 6px #00e5ff88, 0 0 16px #00e5ff33;
+            --glow-g:     0 0 8px #00ff9daa, 0 0 30px #00ff9d44;
+            --glow-r:     0 0 8px #ff3b5caa, 0 0 30px #ff3b5c44;
+            --card-w:     420px;
+        }
 
-    /* ── CHROMATIC ABERRATION OVERLAY ─────────────────────────────────── */
-    #chromatic {
-      position: fixed; inset: 0; z-index: 9997; pointer-events: none;
-      background: repeating-linear-gradient(
-        90deg,
-        rgba(255,0,60,.015) 0px, rgba(255,0,60,.015) 1px,
-        transparent 1px, transparent 3px,
-        rgba(0,229,255,.01) 3px, rgba(0,229,255,.01) 4px,
-        transparent 4px, transparent 6px
-      );
-    }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            perspective: 1200px;
+        }
 
-    /* ── 3D GRID FLOOR ─────────────────────────────────────────────────── */
-    #scene {
-      position: fixed; inset: 0; z-index: 0;
-      overflow: hidden;
-    }
+        /* Three.js canvas — appended directly to body, sits at z-index 0 */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            display: block;
+        }
 
-    #grid-floor {
-      position: absolute;
-      bottom: -10%;
-      left: 50%;
-      transform: translateX(-50%) rotateX(72deg);
-      width: 300vw;
-      height: 220vh;
-      background-image:
-        linear-gradient(rgba(0,229,255,.09) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,229,255,.09) 1px, transparent 1px);
-      background-size: 60px 60px;
-      transform-origin: center bottom;
-      animation: gridPulse 4s ease-in-out infinite;
-    }
-    @keyframes gridPulse {
-      0%,100% { opacity: .7; }
-      50%      { opacity: 1; }
-    }
+        /* ── SCANLINES ─────────────────────────────────────────────────────── */
+        #scanlines {
+            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 3px,
+                rgba(0,229,255,.008) 3px, rgba(0,229,255,.008) 4px
+            );
+            animation: scanShift 8s linear infinite;
+        }
+        @keyframes scanShift { 0% { background-position: 0 0; } 100% { background-position: 0 400px; } }
 
-    /* ── DEPTH VIGNETTE ────────────────────────────────────────────────── */
-    #vignette {
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
-      background: radial-gradient(ellipse 80% 80% at 50% 50%,
-        transparent 30%, rgba(2,8,16,.7) 70%, rgba(2,8,16,.97) 100%
-      );
-    }
+        /* ── CHROMATIC ABERRATION ──────────────────────────────────────────── */
+        #chromatic {
+            position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(255,0,60,.015) 0px, rgba(255,0,60,.015) 1px,
+                transparent 1px, transparent 3px,
+                rgba(0,229,255,.01) 3px, rgba(0,229,255,.01) 4px,
+                transparent 4px, transparent 6px
+            );
+        }
 
-    /* ── FLOATING PARTICLES ────────────────────────────────────────────── */
-    #particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      background: var(--cyan);
-      opacity: 0;
-      animation: particleFloat linear infinite;
-    }
-    @keyframes particleFloat {
-      0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
-      10%  { opacity: .6; }
-      90%  { opacity: .3; }
-      100% { transform: translateY(-20vh) translateX(var(--drift)) scale(1.5); opacity: 0; }
-    }
+        /* ── DATA STREAMS ──────────────────────────────────────────────────── */
+        #datastreams {
+            position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden;
+        }
+        .stream {
+            position: absolute; top: -100%; width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--cyan-dim), transparent);
+            animation: streamFall linear infinite; opacity: .18;
+        }
+        @keyframes streamFall { from { transform: translateY(-100%); } to { transform: translateY(200vh); } }
 
-    /* ── DATA STREAMS (vertical) ───────────────────────────────────────── */
-    #datastreams { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
-    .stream {
-      position: absolute;
-      top: -100%;
-      width: 1px;
-      background: linear-gradient(to bottom, transparent, var(--cyan-dim), transparent);
-      animation: streamFall linear infinite;
-      opacity: .18;
-    }
-    @keyframes streamFall {
-      from { transform: translateY(-100%); }
-      to   { transform: translateY(200vh); }
-    }
+        /* ── CORNER BRACKETS ───────────────────────────────────────────────── */
+        .corner-bracket {
+            position: fixed; width: 80px; height: 80px; z-index: 3; pointer-events: none;
+            transition: opacity .3s;
+        }
+        .corner-bracket::before, .corner-bracket::after {
+            content: ''; position: absolute; background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+        }
+        .corner-bracket::before { width: 100%; height: 2px; }
+        .corner-bracket::after  { width: 2px; height: 100%; }
+        .corner-bracket.tl { top: 20px; left: 20px; }
+        .corner-bracket.tr { top: 20px; right: 20px; transform: scaleX(-1); }
+        .corner-bracket.bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+        .corner-bracket.br { bottom: 20px; right: 20px; transform: scale(-1); }
+        .corner-bracket { animation: bracketPulse 3s ease-in-out infinite; }
+        @keyframes bracketPulse { 0%,100% { opacity: .4; } 50% { opacity: .9; } }
 
-    /* ── CORNER BRACKETS ──────────────────────────────────────────────── */
-    .corner-bracket {
-      position: fixed; width: 80px; height: 80px; z-index: 3; pointer-events: none;
-      transition: opacity .3s;
-    }
-    .corner-bracket::before, .corner-bracket::after {
-      content: '';
-      position: absolute;
-      background: var(--cyan);
-      box-shadow: 0 0 6px var(--cyan);
-    }
-    .corner-bracket::before { width: 100%; height: 2px; }
-    .corner-bracket::after  { width: 2px; height: 100%; }
-    .corner-bracket.tl { top: 20px; left: 20px; }
-    .corner-bracket.tr { top: 20px; right: 20px; transform: scaleX(-1); }
-    .corner-bracket.bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
-    .corner-bracket.br { bottom: 20px; right: 20px; transform: scale(-1); }
-    .corner-bracket { animation: bracketPulse 3s ease-in-out infinite; }
-    @keyframes bracketPulse {
-      0%,100% { opacity: .4; }
-      50%      { opacity: .9; }
-    }
+        /* ── STAGE — full-viewport flex container ──────────────────────────── */
+        #stage {
+            position: relative;
+            z-index: 10;
+            transform-style: preserve-3d;
+            animation: stageEntry .9s cubic-bezier(.16,1,.3,1) both;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none; /* card re-enables below */
+        }
+        @keyframes stageEntry {
+            from { opacity: 0; transform: translateZ(-120px) translateY(40px) rotateX(6deg); }
+            to   { opacity: 1; transform: translateZ(0) translateY(0) rotateX(0deg); }
+        }
 
-    /* ── MAIN STAGE ────────────────────────────────────────────────────── */
-    #stage {
-      position: relative;
-      z-index: 10;
-      transform-style: preserve-3d;
-      animation: stageEntry .9s cubic-bezier(.16,1,.3,1) both;
-    }
-    @keyframes stageEntry {
-      from { opacity: 0; transform: translateZ(-120px) translateY(40px) rotateX(6deg); }
-      to   { opacity: 1; transform: translateZ(0) translateY(0) rotateX(0deg); }
-    }
+        /* ── LOGIN CARD ────────────────────────────────────────────────────── */
+        .login-card {
+            pointer-events: auto; /* re-enable within pointer-events:none stage */
+            position: relative;
+            width: var(--card-w);
+            background: linear-gradient(145deg, #07141f 0%, #040d18 60%, #061220 100%);
+            border: 1px solid var(--border-hi);
+            border-radius: 4px;
+            padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 40px);
+            transform-style: preserve-3d;
+            transition: transform .06s ease-out, box-shadow .3s ease;
+            --card-scale: 1;
+            box-shadow:
+                0 0 0 1px rgba(0,229,255,.06),
+                0 30px 80px rgba(0,0,0,.95),
+                0 0 40px rgba(0,229,255,.08),
+                inset 0 1px 0 rgba(0,229,255,.12),
+                inset 0 -1px 0 rgba(0,0,0,.5);
+            overflow: visible;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+        }
 
-    /* ── CARD ─────────────────────────────────────────────────────────── */
-    .login-card {
-      position: relative;
-      width: var(--card-w);
-      background: linear-gradient(145deg, #07141f 0%, #040d18 60%, #061220 100%);
-      border: 1px solid var(--border-hi);
-      border-radius: 4px;
-      padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 40px);
-      transform-style: preserve-3d;
-      transition: transform .06s ease-out, box-shadow .3s ease;
-      --card-scale: 1;
-      box-shadow:
-        0 0 0 1px rgba(0,229,255,.06),
-        0 30px 80px rgba(0,0,0,.95),
-        0 0 40px rgba(0,229,255,.08),
-        inset 0 1px 0 rgba(0,229,255,.12),
-        inset 0 -1px 0 rgba(0,0,0,.5);
-      overflow: visible;
-      clip-path: polygon(
-        0 0, calc(100% - 20px) 0, 100% 20px,
-        100% 100%, 20px 100%, 0 calc(100% - 20px)
-      );
-    }
+        /* Corner cut glow */
+        .login-card::before {
+            content: ''; position: absolute; top: -1px; right: -1px; width: 28px; height: 28px;
+            background: var(--cyan); clip-path: polygon(0 0, 100% 100%, 100% 0);
+            box-shadow: var(--glow-c); opacity: .6; animation: cornerGlow 2.5s ease-in-out infinite;
+        }
+        @keyframes cornerGlow { 0%,100% { opacity: .4; } 50% { opacity: .9; box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan); } }
 
-    /* Corner cut glow */
-    .login-card::before {
-      content: '';
-      position: absolute;
-      top: -1px; right: -1px;
-      width: 28px; height: 28px;
-      background: var(--cyan);
-      clip-path: polygon(0 0, 100% 100%, 100% 0);
-      box-shadow: var(--glow-c);
-      opacity: .6;
-      animation: cornerGlow 2.5s ease-in-out infinite;
-    }
-    @keyframes cornerGlow {
-      0%,100% { opacity: .4; }
-      50%      { opacity: .9; box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan); }
-    }
+        /* Scan sweep */
+        .login-card::after {
+            content: ''; position: absolute; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            top: -2px; animation: cardScan 3s ease-in-out infinite; opacity: .5;
+        }
+        @keyframes cardScan { 0% { top: 0%; opacity: 0; } 10% { opacity: .6; } 90% { opacity: .3; } 100% { top: 100%; opacity: 0; } }
 
-    /* Scan line sweep across card */
-    .login-card::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-      top: -2px;
-      animation: cardScan 3s ease-in-out infinite;
-      opacity: .5;
-    }
-    @keyframes cardScan {
-      0%   { top: 0%; opacity: 0; }
-      10%  { opacity: .6; }
-      90%  { opacity: .3; }
-      100% { top: 100%; opacity: 0; }
-    }
+        /* ── HEX BADGE ─────────────────────────────────────────────────────── */
+        .hex-badge {
+            position: absolute; top: -16px; left: 32px;
+            background: var(--bg2); border: 1px solid var(--cyan-dim); border-radius: 2px;
+            padding: 3px 10px; font-family: 'Share Tech Mono', monospace;
+            font-size: .55rem; color: var(--cyan-dim); letter-spacing: .2em;
+        }
 
-    /* ── HEX ID BADGE ─────────────────────────────────────────────────── */
-    .hex-badge {
-      position: absolute;
-      top: -16px; left: 32px;
-      background: var(--bg2);
-      border: 1px solid var(--cyan-dim);
-      border-radius: 2px;
-      padding: 3px 10px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: .55rem;
-      color: var(--cyan-dim);
-      letter-spacing: .2em;
-    }
+        /* ── LOGO ──────────────────────────────────────────────────────────── */
+        .logo-block { margin-bottom: 8px; }
+        .logo-main {
+            font-family: 'Orbitron', monospace; font-weight: 900;
+            font-size: clamp(1.4rem, 4vw, 1.9rem); color: var(--cyan);
+            letter-spacing: .18em; line-height: 1; text-shadow: var(--glow-c);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .logo-icon {
+            display: inline-block; width: 28px; height: 28px;
+            border: 2px solid var(--cyan); border-radius: 50%;
+            box-shadow: var(--glow-c-sm), inset 0 0 8px rgba(0,229,255,.3);
+            position: relative; animation: iconSpin 12s linear infinite; flex-shrink: 0;
+        }
+        .logo-icon::before {
+            content: ''; position: absolute; inset: 4px; border-radius: 50%;
+            background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+        @keyframes iconSpin { to { transform: rotate(360deg); } }
+        @keyframes iconPulse { 0%,100%{opacity:.6;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
 
-    /* ── LOGO BLOCK ───────────────────────────────────────────────────── */
-    .logo-block { margin-bottom: 8px; }
+        .logo-sub {
+            font-family: 'Share Tech Mono', monospace; font-size: clamp(.55rem, 1.5vw, .65rem);
+            color: var(--text-dim); letter-spacing: .3em; margin-top: 6px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .logo-sub::before {
+            content: ''; display: inline-block; width: 24px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan-dim));
+        }
 
-    .logo-main {
-      font-family: 'Orbitron', monospace;
-      font-weight: 900;
-      font-size: clamp(1.4rem, 4vw, 1.9rem);
-      color: var(--cyan);
-      letter-spacing: .18em;
-      line-height: 1;
-      text-shadow: var(--glow-c);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        /* ── DIVIDER ───────────────────────────────────────────────────────── */
+        .divider {
+            margin: 18px 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-hi) 30%, var(--cyan-dim) 50%, var(--border-hi) 70%, transparent);
+            position: relative;
+        }
+        .divider::after {
+            content: '◆'; position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -50%); color: var(--cyan-dim);
+            font-size: .5rem; background: var(--panel); padding: 0 6px;
+        }
 
-    .logo-icon {
-      display: inline-block;
-      width: 28px; height: 28px;
-      border: 2px solid var(--cyan);
-      border-radius: 50%;
-      box-shadow: var(--glow-c-sm), inset 0 0 8px rgba(0,229,255,.3);
-      position: relative;
-      animation: iconSpin 12s linear infinite;
-      flex-shrink: 0;
-    }
-    .logo-icon::before {
-      content: '';
-      position: absolute;
-      inset: 4px;
-      border-radius: 50%;
-      background: var(--cyan);
-      box-shadow: 0 0 10px var(--cyan);
-      animation: iconPulse 2s ease-in-out infinite;
-    }
-    @keyframes iconSpin { to { transform: rotate(360deg); } }
-    @keyframes iconPulse { 0%,100%{opacity:.6;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+        /* ── SECTION TITLE ─────────────────────────────────────────────────── */
+        .section-title {
+            font-family: 'Orbitron', monospace; font-weight: 700;
+            font-size: clamp(.65rem, 2vw, .8rem); color: var(--cyan);
+            letter-spacing: .25em; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::before {
+            content: ''; display: inline-block; width: 6px; height: 6px;
+            background: var(--cyan); box-shadow: var(--glow-c-sm);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation: diamondSpin 4s linear infinite;
+        }
+        @keyframes diamondSpin { to { transform: rotate(360deg); } }
 
-    .logo-sub {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: clamp(.55rem, 1.5vw, .65rem);
-      color: var(--text-dim);
-      letter-spacing: .3em;
-      margin-top: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .logo-sub::before {
-      content: '';
-      display: inline-block;
-      width: 24px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan-dim));
-    }
+        /* ── FORM FIELDS ───────────────────────────────────────────────────── */
+        .field-wrap { margin-bottom: 16px; position: relative; }
 
-    /* ── DIVIDER ──────────────────────────────────────────────────────── */
-    .divider {
-      margin: 18px 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-hi) 30%, var(--cyan-dim) 50%, var(--border-hi) 70%, transparent);
-      position: relative;
-    }
-    .divider::after {
-      content: '◆';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      color: var(--cyan-dim);
-      font-size: .5rem;
-      background: var(--panel);
-      padding: 0 6px;
-    }
+        .field-label {
+            font-family: 'Share Tech Mono', monospace; font-size: .6rem; color: var(--text-dim);
+            letter-spacing: .2em; text-transform: uppercase; margin-bottom: 7px;
+            display: flex; align-items: center; gap: 6px; transition: color .2s;
+        }
+        .field-label::before {
+            content: ''; display: inline-block; width: 4px; height: 4px;
+            background: var(--cyan-dim); border-radius: 50%; transition: background .2s, box-shadow .2s;
+        }
+        .field-wrap:focus-within .field-label { color: var(--cyan); }
+        .field-wrap:focus-within .field-label::before { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
 
-    /* ── SECTION TITLE ────────────────────────────────────────────────── */
-    .section-title {
-      font-family: 'Orbitron', monospace;
-      font-weight: 700;
-      font-size: clamp(.65rem, 2vw, .8rem);
-      color: var(--cyan);
-      letter-spacing: .25em;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .section-title::before {
-      content: '';
-      display: inline-block;
-      width: 6px; height: 6px;
-      background: var(--cyan);
-      box-shadow: var(--glow-c-sm);
-      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-      animation: diamondSpin 4s linear infinite;
-    }
-    @keyframes diamondSpin { to { transform: rotate(360deg); } }
+        .input-shell { position: relative; display: flex; align-items: stretch; }
+        .input-shell::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+            background: var(--border); border-radius: 2px 0 0 2px;
+            transition: background .2s, box-shadow .2s; z-index: 1;
+        }
+        .field-wrap:focus-within .input-shell::before { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
 
-    /* ── FIELDS ───────────────────────────────────────────────────────── */
-    .field-wrap {
-      margin-bottom: 16px;
-      position: relative;
-    }
+        .login-input {
+            flex: 1; background: rgba(4,13,24,.9); border: 1px solid var(--border);
+            border-left: none; border-radius: 0 3px 3px 0; padding: 11px 14px;
+            color: var(--text); font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(.75rem, 2vw, .85rem); outline: none;
+            transition: border-color .2s, background .2s, box-shadow .2s;
+            width: 100%; caret-color: var(--cyan);
+        }
+        .login-input:focus { border-color: var(--cyan-dim); background: rgba(0,229,255,.03); box-shadow: inset 0 0 20px rgba(0,229,255,.04); }
+        .login-input::placeholder { color: var(--text-dim); font-size: .75rem; }
+        .login-input::selection { background: rgba(0,229,255,.25); }
 
-    .field-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: .6rem;
-      color: var(--text-dim);
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color .2s;
-    }
-    .field-label::before {
-      content: '';
-      display: inline-block;
-      width: 4px; height: 4px;
-      background: var(--cyan-dim);
-      border-radius: 50%;
-      transition: background .2s, box-shadow .2s;
-    }
+        /* ── PASSWORD TOGGLE ───────────────────────────────────────────────── */
+        .pw-toggle {
+            position: absolute; right: 0; top: 0; bottom: 0; width: 42px;
+            background: transparent; border: none; border-left: 1px solid var(--border);
+            color: var(--text-dim); cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: color .2s, background .2s, border-color .2s;
+            border-radius: 0 3px 3px 0;
+        }
+        .pw-toggle:hover { color: var(--cyan); background: rgba(0,229,255,.06); border-color: var(--cyan-dim); }
+        .pw-toggle:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
 
-    .field-wrap:focus-within .field-label { color: var(--cyan); }
-    .field-wrap:focus-within .field-label::before {
-      background: var(--cyan);
-      box-shadow: 0 0 6px var(--cyan);
-    }
+        .pw-icon-wrap {
+            position: relative; width: 18px; height: 18px;
+            transform-style: preserve-3d; transition: transform .5s cubic-bezier(.34,1.56,.64,1);
+        }
+        .pw-icon-wrap.revealed { transform: rotateY(180deg); }
+        .pw-icon-front, .pw-icon-back {
+            position: absolute; inset: 0; display: flex;
+            align-items: center; justify-content: center; backface-visibility: hidden;
+        }
+        .pw-icon-back { transform: rotateY(180deg); }
+        .pw-icon-front svg, .pw-icon-back svg {
+            width: 16px; height: 16px; stroke: currentColor; fill: none;
+            stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+        }
+        .login-input.pw-visible { border-color: var(--cyan-dim); box-shadow: inset 0 0 20px rgba(0,229,255,.06); }
 
-    .input-shell {
-      position: relative;
-      display: flex;
-      align-items: stretch;
-    }
+        /* ── ALERT BARS ────────────────────────────────────────────────────── */
+        .alert-bar {
+            border-radius: 2px; font-family: 'Share Tech Mono', monospace;
+            font-size: .68rem; padding: 9px 12px 9px 32px; margin-bottom: 14px;
+            position: relative; display: none; letter-spacing: .05em; line-height: 1.4;
+        }
+        .alert-bar::before {
+            position: absolute; left: 10px; top: 50%;
+            transform: translateY(-50%); font-size: .75rem;
+        }
+        #loginError {
+            background: rgba(255,59,92,.07); border: 1px solid var(--red-dim);
+            color: var(--red); border-left: 3px solid var(--red);
+            box-shadow: 0 0 20px rgba(255,59,92,.1), inset 0 0 20px rgba(255,59,92,.03);
+            animation: errorShake .4s ease;
+        }
+        #loginError::before { content: '⚠'; }
+        @keyframes errorShake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-5px); } 40%,80% { transform: translateX(5px); } }
 
-    /* Side accent bar */
-    .input-shell::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 2px;
-      background: var(--border);
-      border-radius: 2px 0 0 2px;
-      transition: background .2s, box-shadow .2s;
-      z-index: 1;
-    }
-    .field-wrap:focus-within .input-shell::before {
-      background: var(--cyan);
-      box-shadow: 0 0 8px var(--cyan);
-    }
+        #lockoutBar {
+            background: rgba(255,59,92,.05); border: 1px solid rgba(122,26,42,.6);
+            color: var(--text-mid); border-left: 3px solid var(--red-dim);
+            text-align: center; letter-spacing: .12em;
+        }
+        #lockoutBar::before { content: '⛔'; }
 
-    .login-input {
-      flex: 1;
-      background: rgba(4,13,24,.9);
-      border: 1px solid var(--border);
-      border-left: none;
-      border-radius: 0 3px 3px 0;
-      padding: 11px 14px;
-      color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: clamp(.75rem, 2vw, .85rem);
-      outline: none;
-      transition: border-color .2s, background .2s, box-shadow .2s;
-      width: 100%;
-      caret-color: var(--cyan);
-    }
-    .login-input:focus {
-      border-color: var(--cyan-dim);
-      background: rgba(0,229,255,.03);
-      box-shadow: inset 0 0 20px rgba(0,229,255,.04);
-    }
-    .login-input::placeholder { color: var(--text-dim); font-size: .75rem; }
-    .login-input::selection { background: rgba(0,229,255,.25); }
+        /* ── AUTH BUTTON ───────────────────────────────────────────────────── */
+        .auth-btn {
+            position: relative; width: 100%; margin-top: 6px;
+            padding: clamp(10px, 2.5vw, 14px); background: transparent;
+            border: 1px solid var(--cyan-dim); border-radius: 3px; color: var(--cyan);
+            font-family: 'Orbitron', monospace; font-size: clamp(.62rem, 1.8vw, .72rem);
+            font-weight: 700; letter-spacing: .22em; cursor: pointer; overflow: hidden;
+            transition: all .3s ease;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+        .auth-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(0,229,255,.12), transparent);
+            transform: translateX(-100%); transition: transform .4s ease;
+        }
+        .auth-btn:hover::before { transform: translateX(100%); }
+        .auth-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            transform: scaleX(0); transition: transform .3s ease;
+        }
+        .auth-btn:hover::after { transform: scaleX(1); }
+        .auth-btn:hover:not(:disabled) { border-color: var(--cyan); box-shadow: var(--glow-c), inset 0 0 30px rgba(0,229,255,.08); color: #fff; }
+        .auth-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+        .auth-btn:disabled { opacity: .35; cursor: not-allowed; }
+        .auth-btn.loading { pointer-events: none; }
+        .auth-btn.loading::before {
+            background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,.2) 50%, transparent 100%);
+            transform: none; animation: btnScan .8s linear infinite;
+        }
+        @keyframes btnScan { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
-    /* ── PASSWORD TOGGLE ──────────────────────────────────────────────── */
-    .pw-toggle {
-      position: absolute;
-      right: 0;
-      top: 0; bottom: 0;
-      width: 42px;
-      background: transparent;
-      border: none;
-      border-left: 1px solid var(--border);
-      color: var(--text-dim);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color .2s, background .2s, border-color .2s;
-      border-radius: 0 3px 3px 0;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-    .pw-toggle:hover { color: var(--cyan); background: rgba(0,229,255,.06); border-color: var(--cyan-dim); }
-    .pw-toggle:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+        .btn-text { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-corner { position: absolute; width: 8px; height: 8px; opacity: .5; }
+        .btn-corner::before, .btn-corner::after { content: ''; position: absolute; background: var(--cyan); }
+        .btn-corner::before { width: 100%; height: 1px; top: 0; left: 0; }
+        .btn-corner::after  { width: 1px; height: 100%; top: 0; left: 0; }
+        .btn-corner.tl { top: 4px; left: 4px; }
+        .btn-corner.tr { top: 4px; right: 4px; transform: scaleX(-1); }
+        .btn-corner.bl { bottom: 4px; left: 4px; transform: scaleY(-1); }
+        .btn-corner.br { bottom: 4px; right: 4px; transform: scale(-1); }
 
-    /* The icon wrapper that flips */
-    .pw-icon-wrap {
-      position: relative;
-      width: 18px; height: 18px;
-      transform-style: preserve-3d;
-      transition: transform .5s cubic-bezier(.34,1.56,.64,1);
-    }
-    .pw-icon-wrap.revealed { transform: rotateY(180deg); }
+        /* ── STATUS FOOTER ─────────────────────────────────────────────────── */
+        .status-footer {
+            margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(13,58,82,.6);
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+        }
+        .status-item {
+            font-family: 'Share Tech Mono', monospace; font-size: .55rem;
+            color: var(--text-dim); letter-spacing: .12em; display: flex; align-items: center; gap: 5px;
+        }
+        .status-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: var(--green); box-shadow: 0 0 5px var(--green);
+            animation: statusPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes statusPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.6); } }
+        .status-dot.amber { background: var(--amber); box-shadow: 0 0 5px var(--amber); }
 
-    .pw-icon-front,
-    .pw-icon-back {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-    }
-    .pw-icon-back { transform: rotateY(180deg); }
+        #resInfo { font-family: 'Share Tech Mono', monospace; font-size: .52rem; color: var(--text-dim); letter-spacing: .1em; }
 
-    /* Eye open SVG */
-    .pw-icon-front svg, .pw-icon-back svg {
-      width: 16px; height: 16px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* Glow pulse on input when password is visible */
-    .login-input.pw-visible {
-      border-color: var(--cyan-dim);
-      box-shadow: inset 0 0 20px rgba(0,229,255,.06);
-    }
-
-    /* ── ERROR / LOCKOUT BARS ─────────────────────────────────────────── */
-    .alert-bar {
-      border-radius: 2px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: .68rem;
-      padding: 9px 12px 9px 32px;
-      margin-bottom: 14px;
-      position: relative;
-      display: none;
-      letter-spacing: .05em;
-      line-height: 1.4;
-    }
-    .alert-bar::before {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: .75rem;
-    }
-
-    #loginError {
-      background: rgba(255,59,92,.07);
-      border: 1px solid var(--red-dim);
-      color: var(--red);
-      border-left: 3px solid var(--red);
-      box-shadow: 0 0 20px rgba(255,59,92,.1), inset 0 0 20px rgba(255,59,92,.03);
-      animation: errorShake .4s ease;
-    }
-    #loginError::before { content: '⚠'; }
-    @keyframes errorShake {
-      0%,100% { transform: translateX(0); }
-      20%      { transform: translateX(-5px); }
-      40%      { transform: translateX(5px); }
-      60%      { transform: translateX(-3px); }
-      80%      { transform: translateX(3px); }
-    }
-
-    #lockoutBar {
-      background: rgba(255,59,92,.05);
-      border: 1px solid rgba(122,26,42,.6);
-      color: var(--text-mid);
-      border-left: 3px solid var(--red-dim);
-      text-align: center;
-      letter-spacing: .12em;
-    }
-    #lockoutBar::before { content: '⛔'; }
-
-    /* ── AUTH BUTTON ──────────────────────────────────────────────────── */
-    .auth-btn {
-      position: relative;
-      width: 100%;
-      margin-top: 6px;
-      padding: clamp(10px, 2.5vw, 14px);
-      background: transparent;
-      border: 1px solid var(--cyan-dim);
-      border-radius: 3px;
-      color: var(--cyan);
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(.62rem, 1.8vw, .72rem);
-      font-weight: 700;
-      letter-spacing: .22em;
-      cursor: pointer;
-      overflow: hidden;
-      transition: all .3s ease;
-      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-    }
-
-    /* Animated fill on hover */
-    .auth-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(0,229,255,.12), transparent);
-      transform: translateX(-100%);
-      transition: transform .4s ease;
-    }
-    .auth-btn:hover::before { transform: translateX(100%); }
-
-    /* Bottom scan line */
-    .auth-btn::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-      transform: scaleX(0);
-      transition: transform .3s ease;
-    }
-    .auth-btn:hover::after  { transform: scaleX(1); }
-    .auth-btn:hover:not(:disabled) {
-      border-color: var(--cyan);
-      box-shadow: var(--glow-c), inset 0 0 30px rgba(0,229,255,.08);
-      color: #fff;
-    }
-    .auth-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-    .auth-btn:disabled { opacity: .35; cursor: not-allowed; }
-
-    /* AUTHENTICATING state: scanning beam across button */
-    .auth-btn.loading {
-      pointer-events: none;
-    }
-    .auth-btn.loading::before {
-      background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,.2) 50%, transparent 100%);
-      transform: none;
-      animation: btnScan .8s linear infinite;
-    }
-    @keyframes btnScan {
-      from { transform: translateX(-100%); }
-      to   { transform: translateX(100%); }
-    }
-
-    .btn-text {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    /* Corner deco marks on button */
-    .btn-corner {
-      position: absolute;
-      width: 8px; height: 8px;
-      opacity: .5;
-    }
-    .btn-corner::before, .btn-corner::after { content: ''; position: absolute; background: var(--cyan); }
-    .btn-corner::before { width: 100%; height: 1px; top: 0; left: 0; }
-    .btn-corner::after  { width: 1px; height: 100%; top: 0; left: 0; }
-    .btn-corner.tl { top: 4px; left: 4px; }
-    .btn-corner.tr { top: 4px; right: 4px; transform: scaleX(-1); }
-    .btn-corner.bl { bottom: 4px; left: 4px; transform: scaleY(-1); }
-    .btn-corner.br { bottom: 4px; right: 4px; transform: scale(-1); }
-
-    /* ── FOOTER STATUS BAR ────────────────────────────────────────────── */
-    .status-footer {
-      margin-top: 20px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(13,58,82,.6);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-    .status-item {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: .55rem;
-      color: var(--text-dim);
-      letter-spacing: .12em;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .status-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 5px var(--green);
-      animation: statusPulse 1.8s ease-in-out infinite;
-    }
-    @keyframes statusPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: .3; transform: scale(.6); }
-    }
-    .status-dot.amber { background: var(--amber); box-shadow: 0 0 5px var(--amber); }
-
-    /* ── RESOLUTION INDICATOR ─────────────────────────────────────────── */
-    #resInfo {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: .52rem;
-      color: var(--text-dim);
-      letter-spacing: .1em;
-    }
-
-    /* ── 3D TILT (JS-driven, class applied) ──────────────────────────── */
-    #stage.tilt-active .login-card {
-      /* box-shadow depth updated via inline style in JS */
-    }
-
-    /* ── MEDIA QUERIES FOR VERY SMALL SCREENS ─────────────────────────── */
-    @media (max-height: 600px) {
-      .login-card { padding: 18px 22px; }
-      .divider     { margin: 10px 0; }
-      .field-wrap  { margin-bottom: 10px; }
-    }
-    @media (max-width: 360px) {
-      :root { --card-w: 94vw; }
-      .corner-bracket { display: none; }
-    }
-    @media (min-width: 1400px) {
-      :root { --card-w: 460px; }
-    }
-    @media (min-width: 2000px) {
-      :root { --card-w: 520px; }
-    }
-  </style>
+        /* ── MEDIA QUERIES ─────────────────────────────────────────────────── */
+        @media (max-height: 600px) { .login-card { padding: 18px 22px; } .divider { margin: 10px 0; } .field-wrap { margin-bottom: 10px; } }
+        @media (max-width: 360px)  { :root { --card-w: 94vw; } .corner-bracket { display: none; } }
+        @media (min-width: 1400px) { :root { --card-w: 460px; } }
+    </style>
 </head>
 <body>
 
-<!-- Layers -->
-<div id="scanlines"   aria-hidden="true"></div>
-<div id="chromatic"  aria-hidden="true"></div>
-<div id="scene"      aria-hidden="true">
-  <div id="grid-floor"></div>
-</div>
-<div id="vignette"   aria-hidden="true"></div>
-<div id="particles"  aria-hidden="true"></div>
-<div id="datastreams" aria-hidden="true"></div>
+    <!-- Overlay layers -->
+    <div id="scanlines"   aria-hidden="true"></div>
+    <div id="chromatic"   aria-hidden="true"></div>
+    <div id="datastreams" aria-hidden="true"></div>
 
-<!-- Corner brackets -->
-<div class="corner-bracket tl" aria-hidden="true"></div>
-<div class="corner-bracket tr" aria-hidden="true"></div>
-<div class="corner-bracket bl" aria-hidden="true"></div>
-<div class="corner-bracket br" aria-hidden="true"></div>
+    <!-- Corner brackets -->
+    <div class="corner-bracket tl" aria-hidden="true"></div>
+    <div class="corner-bracket tr" aria-hidden="true"></div>
+    <div class="corner-bracket bl" aria-hidden="true"></div>
+    <div class="corner-bracket br" aria-hidden="true"></div>
 
-<!-- ── MAIN CARD ─────────────────────────────────────────────────────── -->
-<div id="stage">
-  <div class="login-card" id="loginCard">
+    <!-- Login card (stage is full-viewport flex; card is pointer-events:auto within it) -->
+    <div id="stage">
+        <div class="login-card" id="loginCard">
 
-    <div class="hex-badge" aria-hidden="true">SYS-AUTH // NODE-4.1</div>
+            <div class="hex-badge" aria-hidden="true">SYS-AUTH // TESSERACT-4.1</div>
 
-    <div class="logo-block">
-      <div class="logo-main">
-        <span class="logo-icon" aria-hidden="true"></span>
-        CAPTURES
-      </div>
-      <div class="logo-sub">NODE TELEMETRY DASHBOARD v4.1</div>
-    </div>
-
-    <div class="divider" aria-hidden="true"></div>
-    <div class="section-title">AUTHENTICATE SESSION</div>
-
-    <!-- Error / lockout -->
-    <div id="loginError" class="alert-bar" role="alert" aria-live="assertive"></div>
-    <div id="lockoutBar" class="alert-bar" role="status"  aria-live="polite"></div>
-
-    <!-- USERNAME -->
-    <div class="field-wrap">
-      <label class="field-label" for="loginUser">USERNAME</label>
-      <div class="input-shell">
-        <input class="login-input" id="loginUser" type="text"
-               autocomplete="username" spellcheck="false"
-               maxlength="64" autocapitalize="none"
-               placeholder="ENTER IDENTIFIER">
-      </div>
-    </div>
-
-    <!-- PASSWORD -->
-    <div class="field-wrap">
-      <label class="field-label" for="loginPass">PASSWORD</label>
-      <div class="input-shell">
-        <input class="login-input" id="loginPass" type="password"
-               autocomplete="current-password" maxlength="128"
-               placeholder="ENTER KEY SEQUENCE">
-        <button class="pw-toggle" id="pwToggle"
-                type="button"
-                aria-label="Toggle password visibility"
-                title="Toggle password visibility">
-          <div class="pw-icon-wrap" id="pwIconWrap">
-            <!-- FRONT: eye open (visible) -->
-            <div class="pw-icon-front">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
+            <div class="logo-block">
+                <div class="logo-main">
+                    <span class="logo-icon" aria-hidden="true"></span>
+                    CAPTURES
+                </div>
+                <div class="logo-sub">TESSERACT OBSERVER NODE v4.1</div>
             </div>
-            <!-- BACK: eye off (hidden) -->
-            <div class="pw-icon-back">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
+
+            <div class="divider" aria-hidden="true"></div>
+            <div class="section-title">AUTHENTICATE SESSION</div>
+
+            <div id="loginError" class="alert-bar" role="alert" aria-live="assertive"></div>
+            <div id="lockoutBar" class="alert-bar" role="status"  aria-live="polite"></div>
+
+            <div class="field-wrap">
+                <label class="field-label" for="loginUser">USERNAME</label>
+                <div class="input-shell">
+                    <input class="login-input" id="loginUser" type="text"
+                           autocomplete="username" spellcheck="false"
+                           maxlength="64" autocapitalize="none"
+                           placeholder="ENTER IDENTIFIER">
+                </div>
             </div>
-          </div>
-        </button>
-      </div>
+
+            <div class="field-wrap">
+                <label class="field-label" for="loginPass">PASSWORD</label>
+                <div class="input-shell">
+                    <input class="login-input" id="loginPass" type="password"
+                           autocomplete="current-password" maxlength="128"
+                           placeholder="ENTER KEY SEQUENCE">
+                    <button class="pw-toggle" id="pwToggle"
+                            type="button"
+                            aria-label="Toggle password visibility"
+                            title="Toggle password visibility">
+                        <div class="pw-icon-wrap" id="pwIconWrap">
+                            <div class="pw-icon-front">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </div>
+                            <div class="pw-icon-back">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <button class="auth-btn" id="loginBtn" type="button">
+                <span class="btn-corner tl" aria-hidden="true"></span>
+                <span class="btn-corner tr" aria-hidden="true"></span>
+                <span class="btn-corner bl" aria-hidden="true"></span>
+                <span class="btn-corner br" aria-hidden="true"></span>
+                <span class="btn-text" id="btnText">&#9654;&nbsp;&nbsp;AUTHENTICATE</span>
+            </button>
+
+            <div class="status-footer">
+                <div class="status-item">
+                    <div class="status-dot" id="connDot"></div>
+                    <span id="connLabel">SECURE CHANNEL</span>
+                </div>
+                <div id="resInfo" aria-label="Screen resolution info"></div>
+                <div class="status-item" style="color:var(--text-dim)">
+                    <span>TLS 1.3</span>
+                    <span style="color:var(--green);margin-left:3px">◆</span>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- SUBMIT -->
-    <button class="auth-btn" id="loginBtn" type="button">
-      <span class="btn-corner tl" aria-hidden="true"></span>
-      <span class="btn-corner tr" aria-hidden="true"></span>
-      <span class="btn-corner bl" aria-hidden="true"></span>
-      <span class="btn-corner br" aria-hidden="true"></span>
-      <span class="btn-text" id="btnText">&#9654;&nbsp;&nbsp;AUTHENTICATE</span>
-    </button>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         THREE.JS TESSERACT SWARM
+         Canvas is appended directly to body (z-index:0 via CSS canvas rule).
+         OrbitControls bind to the canvas — card UI is fully unaffected.
+    ════════════════════════════════════════════════════════════════════════ -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls }   from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-    <!-- Footer -->
-    <div class="status-footer">
-      <div class="status-item">
-        <div class="status-dot" id="connDot"></div>
-        <span id="connLabel">SECURE CHANNEL</span>
-      </div>
-      <div id="resInfo" aria-label="Screen resolution info"></div>
-      <div class="status-item" style="color:var(--text-dim)">
-        <span>TLS 1.3</span>
-        <span style="color:var(--green);margin-left:3px">◆</span>
-      </div>
-    </div>
+        const COUNT      = 20000;
+        const SPEED_MULT = 0.1;
+        const AUTO_SPIN  = true;
 
-  </div>
-</div>
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.01);
 
-<script>
-"use strict";
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.set(0, 0, 100);
 
-// ── Constants ─────────────────────────────────────────────────────────────
-const WORKER_ORIGIN = "https://snowy-fog-b0d1.23amtics322.workers.dev";
-const SAFE_REDIRECT = "dashboard.html";
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement); // direct body append — CSS positions it fixed z-index:0
 
-// ── Brute-force throttle ──────────────────────────────────────────────────
-const LOCKOUT_KEY  = "cap_login_state";
-const MAX_ATTEMPTS = 5;
-const BASE_LOCKOUT = 30_000;
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping  = true;
+        controls.autoRotate     = AUTO_SPIN;
+        controls.autoRotateSpeed = 2.0;
+        controls.enablePan      = true;
+        controls.enableZoom     = true;
 
-function getAttemptState() {
-  try { return JSON.parse(sessionStorage.getItem(LOCKOUT_KEY)) || { count:0, until:0 }; }
-  catch { return { count:0, until:0 }; }
-}
-function saveAttemptState(s) {
-  try { sessionStorage.setItem(LOCKOUT_KEY, JSON.stringify(s)); } catch {}
-}
-function recordFailure() {
-  const s = getAttemptState(); s.count++;
-  if (s.count >= MAX_ATTEMPTS) {
-    const tier = Math.min(s.count - MAX_ATTEMPTS + 1, 5);
-    s.until = Date.now() + BASE_LOCKOUT * tier;
-  }
-  saveAttemptState(s);
-}
-function resetAttempts() { try { sessionStorage.removeItem(LOCKOUT_KEY); } catch {} }
-function getLockoutRemaining() { return Math.max(0, getAttemptState().until - Date.now()); }
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.strength  = 1.8;
+        bloomPass.radius    = 0.4;
+        bloomPass.threshold = 0;
+        composer.addPass(bloomPass);
 
-// ── Lockout countdown UI ──────────────────────────────────────────────────
-let _countdown = null;
-function startLockoutCountdown() {
-  const bar = document.getElementById('lockoutBar');
-  const btn = document.getElementById('loginBtn');
-  const dot = document.getElementById('connDot');
-  clearInterval(_countdown);
-  btn.disabled = true;
-  bar.style.display = 'block';
-  dot.classList.add('amber');
-  const tick = () => {
-    const rem = getLockoutRemaining();
-    if (rem <= 0) {
-      clearInterval(_countdown);
-      bar.style.display = 'none'; bar.textContent = '';
-      btn.disabled = false;
-      dot.classList.remove('amber');
-      return;
+        const dummy    = new THREE.Object3D();
+        const colorObj = new THREE.Color();
+        const target   = new THREE.Vector3();
+
+        const geometry      = new THREE.TetrahedronGeometry(0.25);
+        const material      = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const instancedMesh = new THREE.InstancedMesh(geometry, material, COUNT);
+        instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        scene.add(instancedMesh);
+
+        const positions = [];
+        for (let i = 0; i < COUNT; i++) {
+            positions.push(new THREE.Vector3(
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 100
+            ));
+            instancedMesh.setColorAt(i, colorObj.setHex(0x00ff88));
+        }
+
+        const PARAMS    = { scale: 92, chaos: 2.22, fold: 1.57, drift: 0.3 };
+        const addControl = (id, _label, _min, _max, val) => PARAMS[id] !== undefined ? PARAMS[id] : val;
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time  = clock.getElapsedTime() * SPEED_MULT;
+            const count = COUNT;
+
+            controls.update();
+
+            for (let i = 0; i < COUNT; i++) {
+                const scale = addControl('scale', 'Universe Scale', 20, 200, 80);
+                const chaos = addControl('chaos', 'Quantum Chaos',  0,  3,   1.0);
+                const fold  = addControl('fold',  '4D Fold Angle',  0,  6.28, 1.57);
+                const drift = addControl('drift', 'Cosmic Drift',   0,  2,   0.3);
+
+                const t     = time * 0.18;
+                const phi   = (i / count) * 6.2831853;
+                const theta = Math.acos(1 - 2 * ((i * 1.6180339887) % 1));
+
+                const layer  = Math.floor(i / (count * 0.25));
+                const localT = (i % (count * 0.25)) / (count * 0.25);
+                const psi    = localT * 6.2831853 + t;
+                const xi     = phi + t * 0.07 * (layer + 1);
+
+                const r4     = scale * (0.3 + 0.7 * (i / count));
+                const sinTh  = Math.sin(theta), cosTh  = Math.cos(theta);
+                const sinPhi = Math.sin(xi),    cosPhi = Math.cos(xi);
+                const cosPsi = Math.cos(psi + fold);
+
+                let x4 = r4 * sinTh * cosPhi;
+                let y4 = r4 * sinTh * sinPhi;
+                let z4 = r4 * cosTh;
+                let w4 = r4 * cosPsi * 0.9;
+
+                const viewW  = scale * (1.2 + 0.4 * Math.sin(t * 0.5));
+                const wDenom = viewW - w4;
+                const wSafe  = wDenom + (Math.abs(wDenom) < 0.5 ? 0.5 : 0);
+                const proj   = viewW / wSafe;
+
+                let px = x4 * proj, py = y4 * proj, pz = z4 * proj;
+
+                const noiseFreq = 0.04 * chaos;
+                const nx = Math.sin(px * noiseFreq + t * 1.3) * Math.cos(py * noiseFreq - t * 0.9);
+                const ny = Math.sin(py * noiseFreq + t * 0.7) * Math.cos(pz * noiseFreq + t * 1.1);
+                const nz = Math.sin(pz * noiseFreq - t * 1.5) * Math.cos(px * noiseFreq + t * 0.6);
+                const noiseAmp = scale * 0.12 * chaos;
+
+                px += nx * noiseAmp; py += ny * noiseAmp; pz += nz * noiseAmp;
+
+                const breathe = 1.0 + drift * 0.15 * Math.sin(t * 0.4 + (i / count) * 3.14159);
+                px *= breathe; py *= breathe; pz *= breathe;
+
+                const maxCoord = 600;
+                px = Math.max(-maxCoord, Math.min(maxCoord, px));
+                py = Math.max(-maxCoord, Math.min(maxCoord, py));
+                pz = Math.max(-maxCoord, Math.min(maxCoord, pz));
+
+                target.set(px, py, pz);
+
+                const dist     = Math.sqrt(px*px + py*py + pz*pz);
+                const distNorm = Math.min(dist / (scale * 2.5), 1.0);
+                const wNorm    = (w4 / (r4 + 0.001)) * 0.5 + 0.5;
+
+                const hue          = (wNorm * 0.72 + (i / count) * 0.28 + t * 0.04) % 1.0;
+                const sat          = 0.55 + 0.45 * Math.abs(Math.sin(psi * 2.0 + t));
+                const interference = 0.5 + 0.5 * Math.sin(distNorm * 9.42 - t * 1.8);
+                const lit          = 0.18 + 0.52 * interference * (1.0 - distNorm * 0.4);
+
+                colorObj.setHSL(hue, sat, lit);
+
+                positions[i].lerp(target, 0.1);
+                dummy.position.copy(positions[i]);
+                dummy.updateMatrix();
+                instancedMesh.setMatrixAt(i, dummy.matrix);
+                instancedMesh.setColorAt(i, colorObj);
+            }
+
+            instancedMesh.instanceMatrix.needsUpdate = true;
+            instancedMesh.instanceColor.needsUpdate  = true;
+            composer.render();
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         LOGIN UI LOGIC
+         Kept in a separate non-module script so "use strict" works at top level
+         and ES module scoping doesn't affect DOM event bindings.
+    ════════════════════════════════════════════════════════════════════════ -->
+    <script>
+    "use strict";
+
+    // ── Constants ────────────────────────────────────────────────────────────
+    const WORKER_ORIGIN = "https://snowy-fog-b0d1.23amtics322.workers.dev";
+    const SAFE_REDIRECT = "dashboard.html";
+
+    // ── Brute-force throttle ─────────────────────────────────────────────────
+    const LOCKOUT_KEY  = "cap_login_state";
+    const MAX_ATTEMPTS = 5;
+    const BASE_LOCKOUT = 30_000;
+
+    function getAttemptState() {
+        try { return JSON.parse(sessionStorage.getItem(LOCKOUT_KEY)) || { count: 0, until: 0 }; }
+        catch { return { count: 0, until: 0 }; }
     }
-    bar.textContent = "BLOCKED — RETRY IN " + Math.ceil(rem / 1000) + "s";
-  };
-  tick(); _countdown = setInterval(tick, 500);
-}
-
-// ── Session pre-check ─────────────────────────────────────────────────────
-async function checkExistingSession() {
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), 5000);
-  try {
-    const res  = await fetch(WORKER_ORIGIN + "/auth/me", { credentials:'include', signal:ctrl.signal });
-    clearTimeout(tid);
-    if (res.ok) {
-      const data = await res.json().catch(() => ({}));
-      if (data.authenticated === true) window.location.replace(SAFE_REDIRECT);
+    function saveAttemptState(s) {
+        try { sessionStorage.setItem(LOCKOUT_KEY, JSON.stringify(s)); } catch {}
     }
-  } catch { clearTimeout(tid); }
-}
+    function recordFailure() {
+        const s = getAttemptState();
+        s.count++;
+        if (s.count >= MAX_ATTEMPTS) {
+            const tier = Math.min(s.count - MAX_ATTEMPTS + 1, 5);
+            s.until = Date.now() + BASE_LOCKOUT * tier;
+        }
+        saveAttemptState(s);
+    }
+    function resetAttempts() { try { sessionStorage.removeItem(LOCKOUT_KEY); } catch {} }
+    function getLockoutRemaining() { return Math.max(0, getAttemptState().until - Date.now()); }
 
-// ── Password toggle ───────────────────────────────────────────────────────
-const passEl    = document.getElementById('loginPass');
-const pwToggle  = document.getElementById('pwToggle');
-const pwIconWrap = document.getElementById('pwIconWrap');
-let pwVisible = false;
+    // ── Lockout countdown UI ─────────────────────────────────────────────────
+    let _countdown = null;
+    function startLockoutCountdown() {
+        const bar = document.getElementById('lockoutBar');
+        const btn = document.getElementById('loginBtn');
+        const dot = document.getElementById('connDot');
+        clearInterval(_countdown);
+        btn.disabled = true;
+        bar.style.display = 'block';
+        dot.classList.add('amber');
+        const tick = () => {
+            const rem = getLockoutRemaining();
+            if (rem <= 0) {
+                clearInterval(_countdown);
+                bar.style.display = 'none';
+                bar.textContent = '';
+                btn.disabled = false;
+                dot.classList.remove('amber');
+                return;
+            }
+            bar.textContent = "BLOCKED — RETRY IN " + Math.ceil(rem / 1000) + "s";
+        };
+        tick();
+        _countdown = setInterval(tick, 500);
+    }
 
-pwToggle.addEventListener('click', () => {
-  pwVisible = !pwVisible;
-  passEl.type = pwVisible ? 'text' : 'password';
-  pwIconWrap.classList.toggle('revealed', pwVisible);
-  passEl.classList.toggle('pw-visible', pwVisible);
-  pwToggle.setAttribute('aria-label', pwVisible ? 'Hide password' : 'Show password');
-  passEl.focus();
-});
+    // ── Session pre-check ────────────────────────────────────────────────────
+    async function checkExistingSession() {
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), 5000);
+        try {
+            const res = await fetch(WORKER_ORIGIN + "/auth/me", { credentials: 'include', signal: ctrl.signal });
+            clearTimeout(tid);
+            if (res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (data.authenticated === true) window.location.replace(SAFE_REDIRECT);
+            }
+        } catch { clearTimeout(tid); }
+    }
 
-// ── Dynamic resolution info ───────────────────────────────────────────────
-function updateResInfo() {
-  const dpr = window.devicePixelRatio || 1;
-  const w   = window.screen.width  || window.innerWidth;
-  const h   = window.screen.height || window.innerHeight;
-  const el  = document.getElementById('resInfo');
-  if (el) el.textContent = `${w}×${h} @${dpr.toFixed(1)}x`;
-}
-updateResInfo();
-window.addEventListener('resize', updateResInfo);
+    // ── Password toggle ──────────────────────────────────────────────────────
+    const passEl     = document.getElementById('loginPass');
+    const pwToggle   = document.getElementById('pwToggle');
+    const pwIconWrap = document.getElementById('pwIconWrap');
+    let pwVisible = false;
 
-// ── Dynamic card scaling ──────────────────────────────────────────────────
-function adaptToViewport() {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const card = document.getElementById('loginCard');
-  if (!card) return;
-
-  // Store scale in a CSS variable so the tilt transform can compose with it
-  // instead of overwriting it via style.transform directly
-  if (vw < 440) {
-    const scale = Math.max(0.72, vw / 440);
-    card.style.setProperty('--card-scale', scale);
-  } else {
-    card.style.setProperty('--card-scale', 1);
-  }
-
-  if (vw >= 1600 && vh >= 900) {
-    document.documentElement.style.fontSize = '17px';
-  } else if (vw >= 1200) {
-    document.documentElement.style.fontSize = '16px';
-  } else {
-    document.documentElement.style.fontSize = '';
-  }
-}
-adaptToViewport();
-window.addEventListener('resize', adaptToViewport);
-
-// ── 3D Card tilt on mouse move ────────────────────────────────────────────
-const stage    = document.getElementById('stage');
-const loginCard = document.getElementById('loginCard');
-const MAX_TILT = 8; // degrees
-
-document.addEventListener('mousemove', e => {
-  if (window.innerWidth < 768) return; // disable on mobile
-  const cx = window.innerWidth  / 2;
-  const cy = window.innerHeight / 2;
-  const dx = (e.clientX - cx) / cx; // -1 to 1
-  const dy = (e.clientY - cy) / cy;
-  const rx =  dy * -MAX_TILT;
-  const ry =  dx *  MAX_TILT;
-  const sc = parseFloat(loginCard.style.getPropertyValue('--card-scale') || 1);
-  loginCard.style.transform = `scale(${sc}) rotateX(${rx}deg) rotateY(${ry}deg)`;
-  // Parallax shadow depth
-  loginCard.style.boxShadow = `
-    ${-ry * 2}px ${rx * 2}px 80px rgba(0,0,0,.95),
-    0 0 40px rgba(0,229,255,.08),
-    inset 0 1px 0 rgba(0,229,255,.12),
-    inset 0 -1px 0 rgba(0,0,0,.5),
-    ${ry * 1.5}px ${-rx * 1.5}px 30px rgba(0,229,255,.06)
-  `;
-});
-
-document.addEventListener('mouseleave', () => {
-  loginCard.style.transition = 'transform .6s cubic-bezier(.23,1,.32,1), box-shadow .6s ease';
-  // Restore to scale-only (preserve adaptive scale, clear tilt)
-  const sc = parseFloat(loginCard.style.getPropertyValue('--card-scale') || 1);
-  loginCard.style.transform  = sc !== 1 ? `scale(${sc})` : '';
-  loginCard.style.boxShadow  = '';
-  setTimeout(() => { loginCard.style.transition = ''; }, 620);
-});
-
-// Restore transition on card
-loginCard.addEventListener('mouseenter', () => {
-  loginCard.style.transition = 'transform .1s ease-out, box-shadow .1s ease-out';
-});
-
-// ── Particles ────────────────────────────────────────────────────────────
-const pContainer = document.getElementById('particles');
-for (let i = 0; i < 22; i++) {
-  const p = document.createElement('div');
-  p.className = 'particle';
-  const sz = Math.random() * 2.5 + 1;
-  p.style.cssText = `
-    width:${sz}px; height:${sz}px;
-    left:${Math.random() * 100}%;
-    animation-duration:${6 + Math.random() * 10}s;
-    animation-delay:${Math.random() * 8}s;
-    --drift:${(Math.random() - .5) * 120}px;
-    opacity:0;
-    ${i % 4 === 0 ? 'background:var(--green);' : ''}
-    ${i % 7 === 0 ? 'background:var(--amber);' : ''}
-  `;
-  pContainer.appendChild(p);
-}
-
-// ── Data streams ─────────────────────────────────────────────────────────
-const dsContainer = document.getElementById('datastreams');
-for (let i = 0; i < 14; i++) {
-  const s = document.createElement('div');
-  s.className = 'stream';
-  const h = 60 + Math.random() * 180;
-  s.style.cssText = `
-    left:${Math.random() * 100}%;
-    height:${h}px;
-    animation-duration:${3 + Math.random() * 6}s;
-    animation-delay:${Math.random() * 6}s;
-  `;
-  dsContainer.appendChild(s);
-}
-
-// ── Login handler ─────────────────────────────────────────────────────────
-async function doLogin() {
-  const userEl = document.getElementById('loginUser');
-  const errEl  = document.getElementById('loginError');
-  const btn    = document.getElementById('loginBtn');
-  const btnTxt = document.getElementById('btnText');
-
-  if (getLockoutRemaining() > 0) { startLockoutCountdown(); return; }
-
-  const username = userEl.value.trim();
-  const password = passEl.value;
-
-  errEl.style.display = 'none';
-
-  if (!username || !password) {
-    errEl.textContent = 'Enter username and password.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (username.length > 64 || password.length > 128) {
-    errEl.textContent = 'Input exceeds allowed length.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.classList.add('loading');
-  btnTxt.textContent = 'AUTHENTICATING\u2026';
-
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), 10_000);
-
-  try {
-    const res = await fetch(WORKER_ORIGIN + "/auth/login", {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-      signal: ctrl.signal
+    pwToggle.addEventListener('click', () => {
+        pwVisible = !pwVisible;
+        passEl.type = pwVisible ? 'text' : 'password';
+        pwIconWrap.classList.toggle('revealed', pwVisible);
+        passEl.classList.toggle('pw-visible', pwVisible);
+        pwToggle.setAttribute('aria-label', pwVisible ? 'Hide password' : 'Show password');
+        passEl.focus();
     });
-    clearTimeout(tid);
 
-    passEl.value = '';
-    // Reset toggle state after clearing
-    if (pwVisible) {
-      pwVisible = false;
-      passEl.type = 'password';
-      pwIconWrap.classList.remove('revealed');
-      passEl.classList.remove('pw-visible');
+    // ── Dynamic resolution display ───────────────────────────────────────────
+    function updateResInfo() {
+        const dpr = window.devicePixelRatio || 1;
+        const w   = window.screen.width  || window.innerWidth;
+        const h   = window.screen.height || window.innerHeight;
+        const el  = document.getElementById('resInfo');
+        if (el) el.textContent = `${w}×${h} @${dpr.toFixed(1)}x`;
+    }
+    updateResInfo();
+    window.addEventListener('resize', updateResInfo);
+
+    // ── Responsive card scaling ──────────────────────────────────────────────
+    function adaptToViewport() {
+        const vw   = window.innerWidth;
+        const card = document.getElementById('loginCard');
+        if (!card) return;
+        if (vw < 440) {
+            card.style.setProperty('--card-scale', Math.max(0.72, vw / 440));
+        } else {
+            card.style.setProperty('--card-scale', 1);
+        }
+    }
+    adaptToViewport();
+    window.addEventListener('resize', adaptToViewport);
+
+    // ── 3D card tilt on mouse move ───────────────────────────────────────────
+    const loginCard = document.getElementById('loginCard');
+    const MAX_TILT  = 8;
+
+    document.addEventListener('mousemove', e => {
+        if (window.innerWidth < 768) return;
+        const cx = window.innerWidth  / 2;
+        const cy = window.innerHeight / 2;
+        const dx = (e.clientX - cx) / cx;
+        const dy = (e.clientY - cy) / cy;
+        const rx = dy * -MAX_TILT;
+        const ry = dx *  MAX_TILT;
+        const sc = parseFloat(loginCard.style.getPropertyValue('--card-scale') || 1);
+        loginCard.style.transform = `scale(${sc}) rotateX(${rx}deg) rotateY(${ry}deg)`;
+        loginCard.style.boxShadow = `${-ry * 2}px ${rx * 2}px 80px rgba(0,0,0,.95), 0 0 40px rgba(0,229,255,.08), inset 0 1px 0 rgba(0,229,255,.12), inset 0 -1px 0 rgba(0,0,0,.5), ${ry * 1.5}px ${-rx * 1.5}px 30px rgba(0,229,255,.06)`;
+    });
+
+    document.addEventListener('mouseleave', () => {
+        loginCard.style.transition = 'transform .6s cubic-bezier(.23,1,.32,1), box-shadow .6s ease';
+        const sc = parseFloat(loginCard.style.getPropertyValue('--card-scale') || 1);
+        loginCard.style.transform  = sc !== 1 ? `scale(${sc})` : '';
+        loginCard.style.boxShadow  = '';
+        setTimeout(() => { loginCard.style.transition = ''; }, 620);
+    });
+
+    loginCard.addEventListener('mouseenter', () => {
+        loginCard.style.transition = 'transform .1s ease-out, box-shadow .1s ease-out';
+    });
+
+    // ── Data streams ─────────────────────────────────────────────────────────
+    const dsContainer = document.getElementById('datastreams');
+    for (let i = 0; i < 14; i++) {
+        const s = document.createElement('div');
+        s.className = 'stream';
+        const h = 60 + Math.random() * 180;
+        s.style.cssText = `left:${Math.random() * 100}%; height:${h}px; animation-duration:${3 + Math.random() * 6}s; animation-delay:${Math.random() * 6}s;`;
+        dsContainer.appendChild(s);
     }
 
-    let data = {};
-    try { data = await res.json(); } catch {}
+    // ── Login handler ────────────────────────────────────────────────────────
+    async function doLogin() {
+        const userEl = document.getElementById('loginUser');
+        const errEl  = document.getElementById('loginError');
+        const btn    = document.getElementById('loginBtn');
+        const btnTxt = document.getElementById('btnText');
 
-    if (res.ok && data.success === true) {
-      resetAttempts();
-      btnTxt.textContent = '✓ ACCESS GRANTED';
-      btn.style.borderColor = 'var(--green)';
-      btn.style.color       = 'var(--green)';
-      btn.style.boxShadow   = 'var(--glow-g)';
-      setTimeout(() => window.location.replace(SAFE_REDIRECT), 400);
-      return;
+        if (getLockoutRemaining() > 0) { startLockoutCountdown(); return; }
+
+        const username = userEl.value.trim();
+        const password = passEl.value;
+
+        errEl.style.display = 'none';
+
+        if (!username || !password) {
+            errEl.textContent = 'Enter username and password.';
+            errEl.style.display = 'block';
+            return;
+        }
+        if (username.length > 64 || password.length > 128) {
+            errEl.textContent = 'Input exceeds allowed length.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.classList.add('loading');
+        btnTxt.textContent = 'AUTHENTICATING\u2026';
+
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), 10_000);
+
+        try {
+            const res = await fetch(WORKER_ORIGIN + "/auth/login", {
+                method:      'POST',
+                credentials: 'include',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify({ username, password }),
+                signal:      ctrl.signal
+            });
+            clearTimeout(tid);
+
+            // Always clear password from DOM immediately after response
+            passEl.value = '';
+            if (pwVisible) {
+                pwVisible = false;
+                passEl.type = 'password';
+                pwIconWrap.classList.remove('revealed');
+                passEl.classList.remove('pw-visible');
+            }
+
+            let data = {};
+            try { data = await res.json(); } catch {}
+
+            if (res.ok && data.success === true) {
+                resetAttempts();
+                btnTxt.textContent    = '✓ ACCESS GRANTED';
+                btn.style.borderColor = 'var(--green)';
+                btn.style.color       = 'var(--green)';
+                btn.style.boxShadow   = 'var(--glow-g)';
+                setTimeout(() => window.location.replace(SAFE_REDIRECT), 400);
+                return;
+            }
+
+            if (res.status === 429) {
+                const wait = parseInt(res.headers.get('Retry-After') || '30', 10);
+                const s = getAttemptState();
+                s.count = Math.max(s.count + 1, MAX_ATTEMPTS);
+                s.until = Math.max(s.until, Date.now() + wait * 1000);
+                saveAttemptState(s);
+                errEl.textContent    = 'Server rate limit — wait ' + wait + 's.';
+                errEl.style.display  = 'block';
+                startLockoutCountdown();
+                return;
+            }
+
+            recordFailure();
+            errEl.textContent   = 'Invalid credentials.';
+            void errEl.offsetWidth; // force reflow so shake animation replays
+            errEl.style.display = 'block';
+
+            // Shake card on failure
+            loginCard.style.animation = 'none';
+            loginCard.getBoundingClientRect();
+            loginCard.style.animation = '';
+
+            if (getLockoutRemaining() > 0) {
+                startLockoutCountdown();
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btnTxt.textContent = '\u25BA\u00A0\u00A0AUTHENTICATE';
+            }
+            userEl.focus();
+
+        } catch (e) {
+            clearTimeout(tid);
+            passEl.value = '';
+            if (pwVisible) {
+                pwVisible = false;
+                passEl.type = 'password';
+                pwIconWrap.classList.remove('revealed');
+                passEl.classList.remove('pw-visible');
+            }
+            errEl.textContent   = (e.name === 'AbortError') ? 'Request timed out.' : 'Network error.';
+            errEl.style.display = 'block';
+            btn.disabled        = false;
+            btn.classList.remove('loading');
+            btnTxt.textContent  = '\u25BA\u00A0\u00A0AUTHENTICATE';
+            userEl.focus();
+        }
     }
 
-    if (res.status === 429) {
-      const wait = parseInt(res.headers.get('Retry-After') || '30', 10);
-      const s = getAttemptState();
-      s.count = Math.max(s.count + 1, MAX_ATTEMPTS);
-      s.until = Math.max(s.until, Date.now() + wait * 1000);
-      saveAttemptState(s);
-      errEl.textContent = 'Server rate limit — wait ' + wait + 's.';
-      errEl.style.display = 'block';
-      startLockoutCountdown();
-      return;
-    }
+    document.getElementById('loginBtn').addEventListener('click', doLogin);
+    passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
 
-    recordFailure();
-    errEl.style.display = 'none';
-    errEl.textContent = 'Invalid credentials.';
-    // Force reflow so the shake animation replays on every failure
-    void errEl.offsetWidth;
-    errEl.style.display = 'block';
-
-    // Shake card on failure
-    loginCard.style.animation = 'none';
-    loginCard.getBoundingClientRect();
-    loginCard.style.animation = '';
-
-    if (getLockoutRemaining() > 0) {
-      startLockoutCountdown();
-    } else {
-      btn.disabled = false;
-      btn.classList.remove('loading');
-      btnTxt.textContent = '\u25BA\u00A0\u00A0AUTHENTICATE';
-    }
-    userEl.focus();
-
-  } catch (e) {
-    clearTimeout(tid);
-    passEl.value = '';
-    // Reset show-password state so the field goes back to type=password
-    if (pwVisible) {
-      pwVisible = false;
-      passEl.type = 'password';
-      pwIconWrap.classList.remove('revealed');
-      passEl.classList.remove('pw-visible');
-    }
-    errEl.textContent = (e.name === 'AbortError') ? 'Request timed out.' : 'Network error.';
-    errEl.style.display = 'block';
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    btnTxt.textContent = '\u25BA\u00A0\u00A0AUTHENTICATE';
-    userEl.focus();
-  }
-}
-
-document.getElementById('loginBtn').addEventListener('click', doLogin);
-passEl.addEventListener('keydown',   e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('loginUser').addEventListener('keydown', e => {
-  if (e.key === 'Enter') passEl.focus();
-});
-
-// ── Init ──────────────────────────────────────────────────────────────────
-(function init() {
-  if (getLockoutRemaining() > 0) startLockoutCountdown();
-  else checkExistingSession();
-  document.getElementById('loginUser').focus();
-})();
-</script>
+    // ── Init ─────────────────────────────────────────────────────────────────
+    (function init() {
+        if (getLockoutRemaining() > 0) startLockoutCountdown();
+        else checkExistingSession();
+        document.getElementById('loginUser').focus();
+    })();
+    </script>
 </body>
 </html>
