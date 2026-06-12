@@ -59,6 +59,7 @@
     html {
       scrollbar-width: thin;
       scrollbar-color: var(--cyan-dim) var(--bg2);
+      overflow-x: hidden;
     }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg2); }
@@ -70,7 +71,6 @@
       color: var(--text);
       font-family: 'Rajdhani', sans-serif;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
     body::before {
@@ -322,6 +322,7 @@
       <div class="logo-sub" aria-hidden="true">ACCOUNT SETTINGS</div>
     </div>
     <div class="header-right">
+      <a href="PHOTONdashboard.html" class="btn btn-cyan hdr-btn" title="Open Dashboard">⊞ DASHBOARD</a>
       <a href="NYTHERIX-ADMIN.html" class="btn btn-violet hdr-btn" title="Open NYTHERIX Admin">◈ NYTHERIX ADMIN</a>
       <a href="settings.html" class="btn btn-amber hdr-btn" title="Account settings">⚙ SETTINGS</a>
       <button class="btn btn-red hdr-btn" id="logoutBtn" title="End session">⏻ DISCONNECT</button>
@@ -391,7 +392,35 @@ function toast(msg, type = 't-cyan', dur = 2800) {
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, dur);
 }
 
-// ── LOGOUT ────────────────────────────────────────────────────────────────
+// ── AUTH CHECK ───────────────────────────────────────────────────────────
+(async () => {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(`${BASE_URL}/auth/me`, {credentials:'include', signal:ctrl.signal});
+    clearTimeout(tid);
+    if (res.ok) { const data = await res.json().catch(()=>({})); if (data.authenticated === true) { return; } }
+  } catch(e) { clearTimeout(tid); }
+  window.location.replace('index.html');
+})();
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const ctrl = new AbortController(); const tid = setTimeout(() => ctrl.abort(), 6000);
+    fetch(`${BASE_URL}/auth/me`, {credentials:'include', signal:ctrl.signal})
+      .then(r => {
+        clearTimeout(tid);
+        if (r.status === 401 || r.status === 403) { window.location.replace('index.html'); return null; }
+        return r.ok ? r.json() : null;
+      })
+      .then(d => {
+        if (d === null) return;
+        if (d?.authenticated !== true) { window.location.replace('index.html'); }
+      })
+      .catch(() => { clearTimeout(tid); });
+  }
+});
+
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   try { await fetch(`${BASE_URL}/auth/logout`, {method:'POST', credentials:'include'}); } catch(e) {}
   toast('Session terminated','t-amber');
