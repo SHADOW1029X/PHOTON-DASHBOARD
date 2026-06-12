@@ -14,6 +14,16 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23020810'/%3E%3Cpolygon points='16,2 30,9 30,23 16,30 2,23 2,9' fill='none' stroke='%2300e5ff' stroke-width='1.5'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-family='monospace' font-size='13' font-weight='bold' fill='%2300e5ff'%3E%E2%97%88%3C/text%3E%3C/svg%3E">
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ── DELTHA DISPLAY FONT ──────────────────────────────────────── */
+    @font-face {
+      font-family: 'Deltha';
+      src: url('fonts/Deltha.woff2') format('woff2'),
+           url('fonts/Deltha.otf')   format('opentype'),
+           url('fonts/Deltha.ttf')   format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
     /* ══════════════════════════════════════════════════════════════
        DESIGN TOKENS
     ══════════════════════════════════════════════════════════════ */
@@ -43,6 +53,7 @@
       --glow-r:  0 0 8px #ff3b5c77, 0 0 24px #ff3b5c33;
       --glow-v:  0 0 8px #bf7fff77, 0 0 24px #bf7fff33;
       --glow-a:  0 0 8px #ffb30077, 0 0 24px #ffb30033;
+      --font-deltha: 'Deltha', 'Orbitron', monospace;
     }
 
     /* ── RESET & BASE ─────────────────────────────────────────────── */
@@ -137,11 +148,14 @@
     ══════════════════════════════════════════════════════════════ */
     header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 22px 0 18px;
+      padding: 22px 24px 18px;
       border-bottom: 1px solid transparent;
       border-image: linear-gradient(90deg, transparent, var(--border-hi) 20%, var(--cyan-dim) 50%, var(--border-hi) 80%, transparent) 1;
       gap: 16px; flex-wrap: wrap;
-      position: relative;
+      position: sticky; top: 0; z-index: 5000;
+      background: rgba(2,8,16,.86);
+      backdrop-filter: blur(8px);
+      margin: 0 -24px 0;
     }
     /* Animated scan line across header bottom border */
     header::after {
@@ -159,7 +173,8 @@
     .logo-block { display: flex; flex-direction: column; gap: 3px; }
 
     .logo-top {
-      font-family: 'Orbitron', monospace; font-weight: 900;
+      font-family: var(--font-deltha);
+      font-weight: 900;
       font-size: clamp(1.3rem, 3vw, 1.75rem);
       color: var(--cyan); text-shadow: var(--glow-c);
       letter-spacing: .18em; line-height: 1;
@@ -821,26 +836,6 @@
     }
     .delete-warning strong { color: var(--red); }
 
-    /* ── SETTINGS MODAL ────────────────────────────────────────── */
-    .cred-section-title {
-      font-family: 'Orbitron', monospace; font-size: .58rem;
-      color: var(--amber); letter-spacing: .22em;
-      margin: 4px 0 12px; padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-    }
-    .cred-hint {
-      font-family: 'Share Tech Mono', monospace; font-size: .62rem;
-      color: var(--text-dim); margin-top: 12px; line-height: 1.65;
-      border-left: 2px solid var(--border); padding-left: 10px;
-    }
-    #credMsg {
-      display: none; border-radius: 2px;
-      font-family: 'Share Tech Mono', monospace; font-size: .7rem;
-      padding: 8px 12px; margin-top: 12px;
-    }
-    #credMsg.ok  { background: rgba(0,255,157,.06); border: 1px solid var(--green-dim); border-left: 3px solid var(--green); color: var(--green); }
-    #credMsg.err { background: rgba(255,59,92,.06);  border: 1px solid var(--red-dim);  border-left: 3px solid var(--red);   color: var(--red); }
-
     /* ══════════════════════════════════════════════════════════════
        LIGHTBOX
     ══════════════════════════════════════════════════════════════ */
@@ -1009,7 +1004,7 @@
       <div class="status-time" id="statusTime" aria-live="polite">—</div>
       <div class="loader" id="loader" role="status" aria-label="Loading data"></div>
       <a href="NYTHERIX-ADMIN.html" class="btn btn-violet hdr-btn" title="Open NYTHERIX Admin">◈ NYTHERIX ADMIN</a>
-      <button class="btn btn-amber hdr-btn" id="settingsBtn" title="Change credentials">⚙ SETTINGS</button>
+      <a href="settings.html" class="btn btn-amber hdr-btn" id="settingsBtn" title="Account settings">⚙ SETTINGS</a>
       <button class="btn btn-red   hdr-btn" id="logoutBtn"   title="End session">⏻ DISCONNECT</button>
     </div>
   </header>
@@ -1176,52 +1171,6 @@
 <!-- ══════════════════════════════════════════════════════════════
      MODALS
 ══════════════════════════════════════════════════════════════ -->
-
-<!-- SETTINGS -->
-<div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <span class="modal-title" id="settingsModalTitle" style="color:var(--amber);text-shadow:var(--glow-a)">⚙ CHANGE CREDENTIALS</span>
-      <button class="modal-close" onclick="closeModal('settingsModal')" aria-label="Close">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid single">
-        <div class="cred-section-title">// VERIFY IDENTITY</div>
-        <div class="field-group">
-          <label class="field-label" for="credCurrentPass">CURRENT PASSWORD <span style="color:var(--red)">*</span></label>
-          <input class="field-input" id="credCurrentPass" type="password"
-                 autocomplete="current-password" maxlength="128"
-                 placeholder="Required to save any change">
-        </div>
-        <div class="cred-section-title" style="margin-top:16px;">// NEW VALUES (leave blank to keep current)</div>
-        <div class="field-group">
-          <label class="field-label" for="credNewUser">NEW USERNAME</label>
-          <input class="field-input" id="credNewUser" type="text"
-                 autocomplete="username" spellcheck="false" maxlength="64"
-                 placeholder="Leave blank to keep current">
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="credNewPass">NEW PASSWORD</label>
-          <input class="field-input" id="credNewPass" type="password"
-                 autocomplete="new-password" maxlength="128"
-                 placeholder="Leave blank to keep current">
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="credNewPassConfirm">CONFIRM NEW PASSWORD</label>
-          <input class="field-input" id="credNewPassConfirm" type="password"
-                 autocomplete="new-password" maxlength="128"
-                 placeholder="Repeat new password">
-        </div>
-        <div id="credMsg" role="alert"></div>
-        <p class="cred-hint">// Other active sessions will be signed out automatically when credentials change.</p>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-amber" id="credSaveBtn" onclick="saveCredentials()">◈ APPLY CHANGES</button>
-      <button class="btn btn-cyan" onclick="closeModal('settingsModal')">CANCEL</button>
-    </div>
-  </div>
-</div>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer"
@@ -2116,69 +2065,6 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   clearInterval(countdownTimer); toast('Session terminated','t-amber');
   setTimeout(() => { window.location.replace('index.html'); }, 600);
 });
-
-// ── SETTINGS ─────────────────────────────────────────────────────────────
-document.getElementById('settingsBtn').addEventListener('click', () => {
-  ['credCurrentPass','credNewUser','credNewPass','credNewPassConfirm'].forEach(id => { document.getElementById(id).value = ''; });
-  const msg = document.getElementById('credMsg');
-  msg.style.display = 'none'; msg.className = '';
-  document.getElementById('credSaveBtn').disabled = false;
-  openModal('settingsModal');
-  setTimeout(() => document.getElementById('credCurrentPass').focus(), 50);
-});
-async function saveCredentials() {
-  const currentPass    = document.getElementById('credCurrentPass').value;
-  const newUser        = document.getElementById('credNewUser').value.trim();
-  const newPass        = document.getElementById('credNewPass').value;
-  const newPassConfirm = document.getElementById('credNewPassConfirm').value;
-  const msg            = document.getElementById('credMsg');
-  const btn            = document.getElementById('credSaveBtn');
-  const showMsg = (text, type) => { msg.textContent = text; msg.className = type; msg.style.display = 'block'; };
-  if (!currentPass) { showMsg('⚠ Current password is required.','err'); return; }
-  if (!newUser && !newPass) { showMsg('⚠ Enter a new username, new password, or both.','err'); return; }
-  if (newPass && newPass.length < 8) { showMsg('⚠ New password must be at least 8 characters.','err'); return; }
-  if (newPass && newPass.length > 128) { showMsg('⚠ New password too long (max 128 chars).','err'); return; }
-  if (newUser && newUser.length > 64) { showMsg('⚠ New username too long (max 64 chars).','err'); return; }
-  if (newPass && newPass !== newPassConfirm) { showMsg('⚠ New passwords do not match.','err'); return; }
-  btn.disabled = true; btn.textContent = 'APPLYING…';
-  showMsg('',''); msg.style.display = 'none';
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), 10_000);
-  try {
-    const payload = {current_password:currentPass};
-    if (newUser) payload.new_username = newUser;
-    if (newPass) payload.new_password = newPass;
-    const res  = await fetch(`${BASE_URL}/auth/change-credentials`, {
-      method:'POST', credentials:'include',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload),
-      signal: ctrl.signal
-    });
-    clearTimeout(tid);
-    const data = await res.json().catch(()=>({}));
-    if (res.ok && data.success) {
-      showMsg('✓ Credentials updated. You will need to log in again on other devices.','ok');
-      document.getElementById('credCurrentPass').value = '';
-      document.getElementById('credNewPass').value = '';
-      document.getElementById('credNewPassConfirm').value = '';
-      toast('✓ Credentials updated','t-green');
-    } else {
-      document.getElementById('credCurrentPass').value = '';
-      document.getElementById('credNewPass').value = '';
-      document.getElementById('credNewPassConfirm').value = '';
-      showMsg(`⚠ ${data.error||'Update failed ('+res.status+')'}`, 'err');
-    }
-  } catch(e) {
-    clearTimeout(tid);
-    document.getElementById('credCurrentPass').value = '';
-    document.getElementById('credNewPass').value = '';
-    document.getElementById('credNewPassConfirm').value = '';
-    const msg2 = e.name === 'AbortError' ? 'Request timed out.' : `Network error — ${e.message}`;
-    showMsg(`⚠ ${msg2}`, 'err');
-  } finally {
-    btn.disabled = false; btn.textContent = '◈ APPLY CHANGES';
-  }
-}
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 buildHeader();
