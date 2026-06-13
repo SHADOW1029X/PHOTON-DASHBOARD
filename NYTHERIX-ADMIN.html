@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NYTHERIX // ADMIN</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://snowy-fog-b0d1.23amtics322.workers.dev https://*.workers.dev; img-src data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://snowy-fog-b0d1.23amtics322.workers.dev https://nytherix-admin.23amtics322.workers.dev; img-src data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -633,7 +633,7 @@
 // Dashboard-management login worker (auth/me, auth/logout) — login.html / PHOTONdashboard.html
 const BASE_URL        = 'https://snowy-fog-b0d1.23amtics322.workers.dev';
 // NYTHERIX backend worker (pure JSON API: GET/POST /api/settings)
-const NYTHERIX_WORKER = 'https://nytherix-admin.23amtics322.workers.dev/'; // ← set NYTHERIX backend worker URL
+const NYTHERIX_WORKER = 'https://nytherix-admin.23amtics322.workers.dev';
 // NOTE: NYTHERIX_WORKER must respond with CORS headers matching this site's origin:
 //   Access-Control-Allow-Origin: <this site's exact origin> (not *)
 //   Access-Control-Allow-Credentials: true
